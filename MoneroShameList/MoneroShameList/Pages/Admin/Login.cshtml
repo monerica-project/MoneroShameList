@@ -1,0 +1,30 @@
+@page
+@model MoneroShameList.Pages.Admin.LoginModel
+@{
+    ViewData["Title"] = "Admin Login";
+    Layout = "_Layout";
+}
+
+<div class="login-wrap">
+    <div class="login-card">
+        <div class="login-logo">ɱ</div>
+        <div class="login-title">Admin Login</div>
+
+        @if (!string.IsNullOrEmpty(Model.Error))
+        {
+            <div class="alert alert-danger">@Model.Error</div>
+        }
+
+        <form method="post">
+            <div class="form-group">
+                <label for="Username">Username</label>
+                <input asp-for="Username" type="text" id="Username" autocomplete="username" />
+            </div>
+            <div class="form-group">
+                <label for="Password">Password</label>
+                <input asp-for="Password" type="password" id="Password" autocomplete="current-password" />
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%">Log In</button>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="MoneroShameList.Data/MoneroShameList.Data.csproj" />
+  <Project Path="MoneroShameList/MoneroShameList.csproj" />
+</Solution>

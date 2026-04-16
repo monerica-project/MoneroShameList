@@ -1,0 +1,62 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "The Monero Shame List";
+}
+
+<div class="hero">
+    <div class="hero-logo-wrap">
+        <img src="/images/monero-symbol-on-white-480.png" alt="Monero" class="hero-logo" />
+    </div>
+    <h1>The <span>Privacy Hypocrite</span> Shame List</h1>
+    <p>Companies that market themselves as privacy-focused but refuse to accept Monero — the only truly private money.</p>
+    <a href="/Submit" class="btn btn-primary">Submit a Company</a>
+</div>
+
+@* ... rest unchanged ... *@
+
+<div class="sort-bar">
+    <span>Sort by:</span>
+    <a href="?sort=date" class="@(Model.Sort == "date" ? "active" : "")">Date Added</a>
+    <a href="?sort=name" class="@(Model.Sort == "name" ? "active" : "")">Name (A–Z)</a>
+</div>
+
+<p class="entry-count"><strong>@Model.Entries.Count</strong> companies currently listed</p>
+
+@if (Model.Entries.Count == 0)
+{
+    <div class="empty-state">
+        <div class="big-icon">🏆</div>
+        <p>No entries yet. Know a privacy hypocrite? <a href="/Submit">Submit them.</a></p>
+    </div>
+}
+else
+{
+    <div class="shame-list">
+        @foreach (var e in Model.Entries)
+        {
+            <div class="shame-card">
+                <div class="shame-card-header">
+                    <div>
+                        <div class="company-name">@e.Name</div>
+                        <a href="@e.Website" target="_blank" rel="noopener nofollow" class="company-website">@e.Website</a>
+                    </div>
+                    <span class="shame-badge">No XMR</span>
+                </div>
+                <div class="shame-description">@e.Description</div>
+                <div class="shame-why"><strong>Why shamed:</strong> @e.WhyShamed</div>
+                <div class="shame-card-footer">
+                    @if (!string.IsNullOrWhiteSpace(e.ContactUrl))
+                    {
+                        <a href="@e.ContactUrl" target="_blank" rel="noopener nofollow" class="contact-link">📬 Tell them to add Monero</a>
+                    }
+                    else
+                    {
+                        <span></span>
+                    }
+                    <span class="date-added">Added @e.DateAdded.ToString("MMM d, yyyy")</span>
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewData["Title"] != null ? ViewData["Title"] + " — " : "")MoneroShameList.com</title>
+    <meta name="description" content="A public list of privacy-focused companies that hypocritically refuse to accept Monero." />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <div class="header-inner">
+            <a href="/" class="site-logo">
+                <img src="/images/monero-symbol-on-white-480.png" alt="Monero" class="xmr-logo" />
+                <span class="site-name">MoneroShameList<span class="tld">.com</span></span>
+            </a>
+            <nav>
+                <a href="/" class="nav-link">The List</a>
+                <a href="/Submit" class="nav-link">Submit a Company</a>
+                <a href="/About" class="nav-link">About</a>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a href="/Admin" class="nav-link nav-admin">Admin</a>
+                    <form method="post" action="/Admin/Login?handler=Logout" style="display:inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="nav-link nav-link-btn">Log Out</button>
+                    </form>
+                }
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <p>Sponsored by <a href="https://monerica.com" target="_blank" rel="noopener">Monerica.com</a> — the Monero circular economy directory.</p>
+            <p class="footer-tagline">Privacy-focused means nothing if you reject private money.</p>
+        </div>
+    </footer>
+</body>
+</html>

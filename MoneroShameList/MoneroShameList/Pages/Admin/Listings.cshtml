@@ -1,0 +1,77 @@
+@page
+@model MoneroShameList.Pages.Admin.ListingsModel
+@{
+    ViewData["Title"] = "Admin — Listings";
+}
+
+<div class="page-heading">
+    <h1>Manage Listings</h1>
+    <div style="display:flex;gap:0.5rem">
+        <a href="/Admin" class="btn btn-ghost btn-sm">← Submissions</a>
+        <a href="/Admin/EditListing" class="btn btn-primary btn-sm">+ Add Entry</a>
+    </div>
+</div>
+
+@if (TempData["Message"] is string msg)
+{
+    <div class="alert alert-success">@msg</div>
+}
+
+@if (Model.Entries.Count == 0)
+{
+    <div class="empty-state">
+        <div class="big-icon">📋</div>
+        <p>No listings yet. <a href="/Admin/EditListing">Add one directly</a> or approve a submission.</p>
+    </div>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Company</th>
+                <th>Website</th>
+                <th>Added</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var e in Model.Entries)
+            {
+                <tr>
+                    <td style="color:var(--muted)">@e.Id</td>
+                    <td><strong>@e.Name</strong></td>
+                    <td><a href="@e.Website" target="_blank" rel="noopener">@e.Website</a></td>
+                    <td style="color:var(--muted);white-space:nowrap">@e.DateAdded.ToString("MMM d, yyyy")</td>
+                    <td>
+                        @if (e.IsActive)
+                        {
+                            <span class="badge badge-approved">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-rejected">Hidden</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="td-actions">
+                            <a href="/Admin/EditListing?id=@e.Id" class="btn btn-ghost btn-sm">Edit</a>
+                            <form method="post" asp-page-handler="Toggle">
+                                <input type="hidden" name="id" value="@e.Id" />
+                                <button type="submit" class="btn btn-ghost btn-sm">
+                                    @(e.IsActive ? "Hide" : "Show")
+                                </button>
+                            </form>
+                            <form method="post" asp-page-handler="Delete" onsubmit="return confirm('Delete @e.Name?')">
+                                <input type="hidden" name="id" value="@e.Id" />
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

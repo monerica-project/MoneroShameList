@@ -1,0 +1,85 @@
+@page
+@using MoneroShameList.Models
+@model MoneroShameList.Pages.Admin.AdminIndexModel
+@{
+    ViewData["Title"] = "Admin — Submissions";
+}
+
+<div class="page-heading">
+    <h1>Admin</h1>
+    <a href="/Admin/Listings" class="btn btn-ghost btn-sm">Manage Listings</a>
+</div>
+
+<div class="admin-tabs">
+    <a href="?status=pending" class="admin-tab @(Model.Status == "pending" ? "active" : "")">
+        Pending <span class="badge badge-pending">@Model.PendingCount</span>
+    </a>
+    <a href="?status=approved" class="admin-tab @(Model.Status == "approved" ? "active" : "")">Approved</a>
+    <a href="?status=rejected" class="admin-tab @(Model.Status == "rejected" ? "active" : "")">Rejected</a>
+</div>
+
+@if (TempData["Message"] is string msg)
+{
+    <div class="alert alert-success">@msg</div>
+}
+
+@if (Model.Submissions.Count == 0)
+{
+    <div class="empty-state">
+        <div class="big-icon">✅</div>
+        <p>No @Model.Status submissions.</p>
+    </div>
+}
+else
+{
+    @foreach (var s in Model.Submissions)
+    {
+        <div class="submission-card">
+            <h3>@s.Name</h3>
+            <div class="submission-meta">
+                Submitted @s.SubmittedAt.ToString("MMM d, yyyy HH:mm UTC")
+                @if (!string.IsNullOrWhiteSpace(s.SubmitterEmail)) { <span> · @s.SubmitterEmail</span> }
+            </div>
+
+            <div class="submission-field">
+                <strong>Website</strong>
+                <a href="@s.Website" target="_blank" rel="noopener">@s.Website</a>
+            </div>
+            <div class="submission-field">
+                <strong>Description</strong>
+                @s.Description
+            </div>
+            <div class="submission-field">
+                <strong>Why Shamed</strong>
+                @s.WhyShamed
+            </div>
+            @if (!string.IsNullOrWhiteSpace(s.ContactUrl))
+            {
+                <div class="submission-field">
+                    <strong>Contact URL</strong>
+                    <a href="@s.ContactUrl" target="_blank" rel="noopener">@s.ContactUrl</a>
+                </div>
+            }
+
+            @if (s.Status == SubmissionStatus.Pending)
+            {
+                <div class="submission-actions">
+                    <form method="post" asp-page-handler="Approve">
+                        <input type="hidden" name="id" value="@s.Id" />
+                        <button type="submit" class="btn btn-success btn-sm">✔ Approve</button>
+                    </form>
+                    <form method="post" asp-page-handler="Reject">
+                        <input type="hidden" name="id" value="@s.Id" />
+                        <button type="submit" class="btn btn-danger btn-sm">✖ Reject</button>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <div style="margin-top:0.75rem">
+                    <span class="badge badge-@s.Status.ToString().ToLower()">@s.Status</span>
+                </div>
+            }
+        </div>
+    }
+}

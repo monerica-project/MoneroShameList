@@ -1,0 +1,62 @@
+@page
+@model MoneroShameList.Pages.Admin.EditListingModel
+@{
+    var isNew = Model.Input.Id == 0;
+    ViewData["Title"] = isNew ? "Admin — Add Entry" : "Admin — Edit Entry";
+}
+
+<div style="margin-bottom:1.25rem">
+    <a href="/Admin/Listings" class="btn btn-ghost btn-sm">← Back to Listings</a>
+</div>
+
+<div class="form-card">
+    <div class="form-title">@(isNew ? "Add New Entry" : "Edit Entry")</div>
+    <div class="form-subtitle">@(isNew ? "Manually add a company to the shame list." : "Update this listing.")</div>
+
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <input type="hidden" asp-for="Input.Id" />
+
+        <div class="form-group">
+            <label asp-for="Input.Name">Company Name *</label>
+            <input asp-for="Input.Name" type="text" />
+            <span asp-validation-for="Input.Name" class="field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Input.Website">Website *</label>
+            <input asp-for="Input.Website" type="url" placeholder="https://" />
+            <span asp-validation-for="Input.Website" class="field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Input.Description">Description *</label>
+            <textarea asp-for="Input.Description" placeholder="Who are they and what do they do?"></textarea>
+            <span asp-validation-for="Input.Description" class="field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Input.WhyShamed">Why Shamed *</label>
+            <textarea asp-for="Input.WhyShamed" placeholder="Why does their privacy claim make refusing Monero hypocritical?"></textarea>
+            <span asp-validation-for="Input.WhyShamed" class="field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Input.ContactUrl">Contact URL</label>
+            <input asp-for="Input.ContactUrl" type="url" placeholder="https://" />
+            <span asp-validation-for="Input.ContactUrl" class="field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input asp-for="Input.IsActive" type="checkbox" style="width:auto;margin-right:0.4rem" />
+                Active (visible on public list)
+            </label>
+        </div>
+
+        <div style="display:flex;gap:0.75rem">
+            <button type="submit" class="btn btn-primary">@(isNew ? "Add to List" : "Save Changes")</button>
+            <a href="/Admin/Listings" class="btn btn-ghost">Cancel</a>
+        </div>
+    </form>
+</div>

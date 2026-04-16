@@ -1,0 +1,62 @@
+@page
+@model SubmitModel
+@{
+    ViewData["Title"] = "Submit a Company";
+}
+
+<div class="form-card">
+    <div class="form-title">Submit a Company</div>
+    <div class="form-subtitle">Know a privacy-focused company that hypocritically ignores Monero? Submit them for review. All submissions are manually reviewed before appearing on the list.</div>
+
+    @if (Model.Submitted)
+    {
+        <div class="alert alert-success">
+            ✅ Submission received. It will be reviewed shortly — thank you.
+        </div>
+    }
+    else
+    {
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="form-group">
+                <label asp-for="Input.Name">Company Name *</label>
+                <input asp-for="Input.Name" type="text" placeholder="e.g. ProtonMail" />
+                <span asp-validation-for="Input.Name" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Input.Website">Website *</label>
+                <input asp-for="Input.Website" type="url" placeholder="https://example.com" />
+                <span asp-validation-for="Input.Website" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Input.Description">Who are they? *</label>
+                <textarea asp-for="Input.Description" placeholder="Brief description of the company and what privacy-focused product/service they offer."></textarea>
+                <span asp-validation-for="Input.Description" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Input.WhyShamed">Why should they be shamed? *</label>
+                <textarea asp-for="Input.WhyShamed" placeholder="Explain their privacy claims and why refusing Monero contradicts them."></textarea>
+                <span asp-validation-for="Input.WhyShamed" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Input.ContactUrl">Contact / Feedback URL</label>
+                <input asp-for="Input.ContactUrl" type="url" placeholder="https://example.com/contact (optional)" />
+                <div class="hint">A URL where people can contact the company to request Monero support.</div>
+                <span asp-validation-for="Input.ContactUrl" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Input.SubmitterEmail">Your Email (optional)</label>
+                <input asp-for="Input.SubmitterEmail" type="email" placeholder="In case we have questions — never published" />
+                <span asp-validation-for="Input.SubmitterEmail" class="field-error"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit for Review</button>
+        </form>
+    }
+</div>
