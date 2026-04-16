@@ -7,7 +7,8 @@
 
 param(
     [switch]$SkipBuild,
-    [switch]$SSL
+    [switch]$SSL,
+    [switch]$Tor
 )
 
 Set-StrictMode -Version Latest
@@ -249,12 +250,48 @@ if ($SSL) {
     Write-Ok "SSL installed for $DOMAIN"
 }
 
+# -- Step 9: Tor hidden service (first time only) ------------------------------
+if ($Tor) {
+    Write-Step "Setting up Tor hidden service"
+
+    $torScript  = "#!/bin/bash`n"
+    $torScript += "set -e`n"
+    $torScript += "apt-get install -y tor`n"
+    $torScript += "systemctl enable tor`n"
+    # Only add the hidden service block if not already present
+    $torScript += "if ! grep -q 'moneroshamelist' /etc/tor/torrc; then`n"
+    $torScript += "  echo '' >> /etc/tor/torrc`n"
+    $torScript += "  echo '# MoneroShameList hidden service' >> /etc/tor/torrc`n"
+    $torScript += "  echo 'HiddenServiceDir /var/lib/tor/moneroshamelist/' >> /etc/tor/torrc`n"
+    $torScript += "  echo 'HiddenServicePort 80 127.0.0.1:$APP_PORT' >> /etc/tor/torrc`n"
+    $torScript += "fi`n"
+    $torScript += "systemctl restart tor`n"
+    $torScript += "sleep 5`n"
+    $torScript += "echo 'Onion address:'`n"
+    $torScript += "cat /var/lib/tor/moneroshamelist/hostname`n"
+
+    $torScriptFile = Join-Path $env:TEMP "tor-setup.sh"
+    Save-UnixFile $torScriptFile $torScript
+    Run-RemoteScript $torScriptFile "/tmp/tor-setup.sh"
+
+    $onionAddress = (& $PLINK -ssh -pw $SSH_PASSWORD -batch "$SSH_USER@$SSH_HOST" `
+        "cat /var/lib/tor/moneroshamelist/hostname 2>/dev/null || echo 'not ready yet'").Trim()
+
+    Write-Ok "Tor hidden service configured"
+    Write-Host "   Onion: $onionAddress" -ForegroundColor Magenta
+}
+
 # -- Done ----------------------------------------------------------------------
 Write-Host ""
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host " Deployment complete!" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host " Site: http$(if ($SSL) {'s'})://$DOMAIN" -ForegroundColor White
+if ($Tor) {
+    $onion = (& $PLINK -ssh -pw $SSH_PASSWORD -batch "$SSH_USER@$SSH_HOST" `
+        "cat /var/lib/tor/moneroshamelist/hostname 2>/dev/null || echo 'pending'").Trim()
+    Write-Host " Onion: http://$onion" -ForegroundColor Magenta
+}
 Write-Host ""
 Write-Host " Useful commands:" -ForegroundColor Gray
 Write-Host "   Status: plink -ssh -pw PASSWORD root@$SSH_HOST systemctl status $APP_NAME" -ForegroundColor Gray
