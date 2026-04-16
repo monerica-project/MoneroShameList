@@ -111,3 +111,7 @@ rcf/
 /src/DirectoryManager/DirectoryManager.EmailMessageMaker/appsettings.json
 /CryptoPriceNow.Web/appsettings.json
 /src/CryptoPriceNow.Web/appsettings.json
+/CI/deploy-config.ps1
+/publish
+/MoneroShameList/MoneroShameList.Data/appsettings.json
+/MoneroShameList/MoneroShameList/appsettings.json
