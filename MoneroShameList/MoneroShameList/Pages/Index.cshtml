@@ -1,4 +1,5 @@
 @page
+@using MoneroShameList.Helpers
 @model IndexModel
 @{
     ViewData["Title"] = "The Monero Shame List";
@@ -43,8 +44,8 @@ else
                     </div>
                     <span class="shame-badge">No XMR</span>
                 </div>
-                <div class="shame-description">@e.Description</div>
-                <div class="shame-why"><strong>Why shamed:</strong> @e.WhyShamed</div>
+                <div class="shame-description">@TextHelpers.Linkify(e.Description)</div>
+                <div class="shame-why"><strong>Why shamed:</strong> @TextHelpers.Linkify(e.WhyShamed)</div>
                 <div class="shame-card-footer">
                     @if (!string.IsNullOrWhiteSpace(e.ContactUrl))
                     {
