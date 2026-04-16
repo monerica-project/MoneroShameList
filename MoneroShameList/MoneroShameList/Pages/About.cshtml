@@ -103,6 +103,38 @@
         <li>Has a reasonable ability to add crypto/Monero payments</li>
     </ul>
 
+    <h2>Support This Site</h2>
+    <p>
+        If you find this site useful, consider donating Monero to keep it running or to support the podcast:
+    </p>
+
+    
+    <div class="donation-card">
+        <div class="donation-label">Anti-Moonboy (podcast)</div>
+        <div class="donation-address">
+            <code>84tVkJ6zAHyEpE8yBmkdVtY9s85DLmAwqX4uAdDsswHn4aRw7HpdEabfWigs8Y5QQRarqLj1TLZha38mjHTYJABUHEzgPTA</code>
+            <button class="copy-btn" onclick="copyAddress(this, '84tVkJ6zAHyEpE8yBmkdVtY9s85DLmAwqX4uAdDsswHn4aRw7HpdEabfWigs8Y5QQRarqLj1TLZha38mjHTYJABUHEzgPTA')">Copy</button>
+        </div>
+    </div>
+
+    <div class="donation-card">
+        <div class="donation-label">Monerica.com (site sponsor)</div>
+        <div class="donation-address">
+            <code>8BciMHULmH1Gu6Jrwv1vEJB11f3sNNSGRVU2PKMuaMJ48wndUuNDbaZ94ijH7H3fKQbhkUA5k98ZHUB3cmuoJjwV7WcT3dC</code>
+            <button class="copy-btn" onclick="copyAddress(this, '8BciMHULmH1Gu6Jrwv1vEJB11f3sNNSGRVU2PKMuaMJ48wndUuNDbaZ94ijH7H3fKQbhkUA5k98ZHUB3cmuoJjwV7WcT3dC')">Copy</button>
+        </div>
+    </div>
+
+    <script>
+            function copyAddress(btn, addr) {
+                navigator.clipboard.writeText(addr).then(() => {
+                    btn.textContent = 'Copied!';
+                    btn.classList.add('copied');
+                    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+                });
+            }
+    </script>
+
     <h2>Contact</h2>
     <p>
         For questions or removal requests, visit <a href="https://monerica.com" target="_blank" rel="noopener">Monerica.com</a>.

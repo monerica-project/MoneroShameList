@@ -191,3 +191,71 @@ td a { color: var(--orange); }
     display: block;
     box-shadow: 0 0 0 3px var(--orange-dim);
 }
+
+.shame-why, .shame-description {
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+    .shame-why a, .shame-description a {
+        overflow-wrap: break-word;
+        word-break: break-all;
+    }
+
+.donation-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--orange);
+    border-radius: 6px;
+    padding: 0.9rem 1.1rem;
+    margin: 0.75rem 0;
+    max-width: 680px;
+}
+
+.donation-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--orange);
+    margin-bottom: 0.5rem;
+}
+
+.donation-address {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+    .donation-address code {
+        font-size: 0.78rem;
+        color: #bbb;
+        word-break: break-all;
+        flex: 1;
+        min-width: 0;
+        font-family: 'Courier New', monospace;
+    }
+
+.copy-btn {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 0.25rem 0.65rem;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+    .copy-btn:hover {
+        color: var(--text);
+        border-color: #555;
+    }
+
+    .copy-btn.copied {
+        color: var(--success);
+        border-color: var(--success);
+    }
