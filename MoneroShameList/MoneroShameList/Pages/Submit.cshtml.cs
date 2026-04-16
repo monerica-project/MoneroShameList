@@ -11,49 +11,67 @@ public class SubmitModel(AppDbContext db) : PageModel
     [BindProperty]
     public SubmitInput Input { get; set; } = new();
 
-    public bool Submitted { get; set; }
-
     public void OnGet() { }
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (!ModelState.IsValid) return Page();
+        // Normalise optional URL fields — strip whitespace so [Url] doesn't
+        // fire on an accidental space, and null out empty strings
+        Input.ContactUrl = string.IsNullOrWhiteSpace(Input.ContactUrl)
+            ? null : Input.ContactUrl.Trim();
+        Input.SubmitterEmail = string.IsNullOrWhiteSpace(Input.SubmitterEmail)
+            ? null : Input.SubmitterEmail.Trim();
+        Input.Website = Input.Website?.Trim() ?? "";
+
+        // Re-validate after normalisation
+        ModelState.Clear();
+        if (!TryValidateModel(Input, nameof(Input)))
+            return Page();
 
         db.Submissions.Add(new Submission
         {
-            Name = Input.Name,
-            Website = Input.Website,
-            Description = Input.Description,
-            WhyShamed = Input.WhyShamed,
-            ContactUrl = string.IsNullOrWhiteSpace(Input.ContactUrl) ? null : Input.ContactUrl,
-            SubmitterEmail = string.IsNullOrWhiteSpace(Input.SubmitterEmail) ? null : Input.SubmitterEmail,
+            Name        = Input.Name.Trim(),
+            Website     = Input.Website,
+            Description = Input.Description.Trim(),
+            WhyShamed   = Input.WhyShamed.Trim(),
+            ContactUrl  = Input.ContactUrl,
+            SubmitterEmail = Input.SubmitterEmail,
             SubmittedAt = DateTime.UtcNow,
-            Status = SubmissionStatus.Pending
+            Status      = SubmissionStatus.Pending
         });
 
         await db.SaveChangesAsync();
-        Submitted = true;
-        return Page();
+
+        // PRG: redirect so a page refresh doesn't resubmit the form
+        TempData["Submitted"] = true;
+        return RedirectToPage();
     }
 }
 
 public class SubmitInput
 {
-    [Required, MaxLength(200)]
+    [Required(ErrorMessage = "Company name is required.")]
+    [MaxLength(200, ErrorMessage = "Company name must be 200 characters or fewer.")]
     public string Name { get; set; } = "";
 
-    [Required, MaxLength(500), Url]
+    [Required(ErrorMessage = "Website is required.")]
+    [MaxLength(500, ErrorMessage = "Website URL must be 500 characters or fewer.")]
+    [Url(ErrorMessage = "Please enter a valid URL including https://.")]
     public string Website { get; set; } = "";
 
-    [Required, MaxLength(1000)]
+    [Required(ErrorMessage = "Description is required.")]
+    [MaxLength(1000, ErrorMessage = "Description must be 1000 characters or fewer.")]
     public string Description { get; set; } = "";
 
-    [Required, MaxLength(1000)]
+    [Required(ErrorMessage = "Please explain why they should be shamed.")]
+    [MaxLength(1000, ErrorMessage = "Must be 1000 characters or fewer.")]
     public string WhyShamed { get; set; } = "";
 
-    [MaxLength(500), Url]
+    [MaxLength(500, ErrorMessage = "URL must be 500 characters or fewer.")]
+    [Url(ErrorMessage = "Please enter a valid URL including https://.")]
     public string? ContactUrl { get; set; }
 
-    [MaxLength(200), EmailAddress]
+    [MaxLength(200, ErrorMessage = "Email must be 200 characters or fewer.")]
+    [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
     public string? SubmitterEmail { get; set; }
 }

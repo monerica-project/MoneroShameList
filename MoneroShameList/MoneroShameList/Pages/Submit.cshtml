@@ -8,10 +8,10 @@
     <div class="form-title">Submit a Company</div>
     <div class="form-subtitle">Know a privacy-focused company that hypocritically ignores Monero? Submit them for review. All submissions are manually reviewed before appearing on the list.</div>
 
-    @if (Model.Submitted)
+    @if (TempData["Submitted"] as bool? == true)
     {
         <div class="alert alert-success">
-            ✅ Submission received. It will be reviewed shortly — thank you.
+            &#x2705; Submission received. It will be reviewed shortly &mdash; thank you.
         </div>
     }
     else
@@ -27,7 +27,7 @@
 
             <div class="form-group">
                 <label asp-for="Input.Website">Website *</label>
-                <input asp-for="Input.Website" type="url" placeholder="https://example.com" />
+                <input asp-for="Input.Website" type="text" placeholder="https://example.com" />
                 <span asp-validation-for="Input.Website" class="field-error"></span>
             </div>
 
@@ -45,7 +45,7 @@
 
             <div class="form-group">
                 <label asp-for="Input.ContactUrl">Contact / Feedback URL</label>
-                <input asp-for="Input.ContactUrl" type="url" placeholder="https://example.com/contact (optional)" />
+                <input asp-for="Input.ContactUrl" type="text" placeholder="https://example.com/contact (optional)" />
                 <div class="hint">A URL where people can contact the company to request Monero support.</div>
                 <span asp-validation-for="Input.ContactUrl" class="field-error"></span>
             </div>
@@ -60,3 +60,7 @@
         </form>
     }
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
