@@ -372,3 +372,39 @@ td a { color: var(--orange); }
     background: rgba(155,89,182,0.15);
     color: #b07fd4;
 }
+.list-header-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+}
+
+    .list-header-row .entry-count {
+        margin-bottom: 0;
+    }
+
+.converted-inline {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.6;
+}
+
+    .converted-inline strong {
+        color: var(--success);
+    }
+
+.converted-link {
+    color: var(--muted);
+    font-size: 0.8rem;
+    text-decoration: underline;
+    text-decoration-color: var(--border);
+}
+
+    .converted-link:hover {
+        color: var(--success);
+        text-decoration-color: var(--success);
+        text-decoration: underline;
+    }

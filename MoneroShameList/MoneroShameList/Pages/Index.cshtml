@@ -21,7 +21,21 @@
     <a href="?sort=name" class="@(Model.Sort == "name" ? "active" : "")">Name (A–Z)</a>
 </div>
 
-<p class="entry-count"><strong>@Model.Entries.Count</strong> @(Model.Entries.Count == 1 ? "company" : "companies") currently listed</p>
+<div class="list-header-row">
+    <p class="entry-count"><strong>@Model.Entries.Count</strong> @(Model.Entries.Count == 1 ? "company" : "companies") currently listed</p>
+    @if (Model.Converted.Count > 0)
+    {
+        <p class="converted-inline">
+            ✅ <strong>@Model.Converted.Count</strong> converted:
+            @for (var ci = 0; ci < Model.Converted.Count; ci++)
+            {
+                var c = Model.Converted[ci];
+                <a href="/company/@c.Slug" class="converted-link">@c.Name</a>
+                @(ci < Model.Converted.Count - 1 ? ", " : "")
+            }
+        </p>
+    }
+</div>
 
 @if (Model.Entries.Count == 0)
 {
@@ -88,20 +102,5 @@ else
                 </div>
             </div>
         }
-    </div>
-}
-
-@if (Model.Converted.Count > 0)
-{
-    <div class="converted-section">
-        <p class="converted-heading">
-            ✅ <strong>@Model.Converted.Count</strong> @(Model.Converted.Count == 1 ? "company" : "companies") that were shamed and now accept Monero:
-            @for (var ci = 0; ci < Model.Converted.Count; ci++)
-            {
-                var c = Model.Converted[ci];
-                <a href="/company/@c.Slug" class="converted-link">@c.Name</a>
-                @(ci < Model.Converted.Count - 1 ? ", " : "")
-            }
-        </p>
     </div>
 }

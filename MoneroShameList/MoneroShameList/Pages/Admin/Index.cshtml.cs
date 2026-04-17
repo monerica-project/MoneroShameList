@@ -23,7 +23,7 @@ public class AdminIndexModel(AppDbContext db) : PageModel
         if (Status == "converted")
         {
             Submissions = await db.Submissions
-                .Where(s => s.Status == SubmissionStatus.Pending && s.Category == ShameCategory.Converted)
+                .Where(s => s.Category == ShameCategory.Converted)
                 .OrderByDescending(s => s.SubmittedAt)
                 .ToListAsync();
         }
@@ -40,7 +40,7 @@ public class AdminIndexModel(AppDbContext db) : PageModel
             s.Status == SubmissionStatus.Pending && s.Category != ShameCategory.Converted);
 
         ConvertedCount = await db.Submissions.CountAsync(s =>
-            s.Status == SubmissionStatus.Pending && s.Category == ShameCategory.Converted);
+            s.Category == ShameCategory.Converted && s.Status == SubmissionStatus.Pending);
     }
 
     public async Task<IActionResult> OnPostApproveAsync(int id)
