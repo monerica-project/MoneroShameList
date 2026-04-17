@@ -1,4 +1,5 @@
 @page
+@using MoneroShameList.Models
 @model MoneroShameList.Pages.Admin.ListingsModel
 @{
     ViewData["Title"] = "Admin — Listings";
@@ -31,7 +32,7 @@ else
             <tr>
                 <th>#</th>
                 <th>Company</th>
-                <th>Website</th>
+                <th>Category</th>
                 <th>Added</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -42,8 +43,24 @@ else
             {
                 <tr>
                     <td style="color:var(--muted)">@e.Id</td>
-                    <td><strong>@e.Name</strong></td>
-                    <td><a href="@e.Website" target="_blank" rel="noopener">@e.Website</a></td>
+                    <td>
+                        <strong>@e.Name</strong><br />
+                        <a href="@e.Website" target="_blank" rel="noopener" style="font-size:0.8rem">@e.Website</a>
+                    </td>
+                    <td>
+                        @switch (e.Category)
+                        {
+                            case ShameCategory.DelistedXmr:
+                                <span class="badge badge-delisted">Delisted XMR</span>
+                                break;
+                            case ShameCategory.AllowsOtherCrypto:
+                                <span class="badge badge-other">Other Crypto</span>
+                                break;
+                            default:
+                                <span class="badge badge-pending">Never Added</span>
+                                break;
+                        }
+                    </td>
                     <td style="color:var(--muted);white-space:nowrap">@e.DateAdded.ToString("MMM d, yyyy")</td>
                     <td>
                         @if (e.IsActive)
@@ -60,9 +77,7 @@ else
                             <a href="/Admin/EditListing?id=@e.Id" class="btn btn-ghost btn-sm">Edit</a>
                             <form method="post" asp-page-handler="Toggle">
                                 <input type="hidden" name="id" value="@e.Id" />
-                                <button type="submit" class="btn btn-ghost btn-sm">
-                                    @(e.IsActive ? "Hide" : "Show")
-                                </button>
+                                <button type="submit" class="btn btn-ghost btn-sm">@(e.IsActive ? "Hide" : "Show")</button>
                             </form>
                             <form method="post" asp-page-handler="Delete" onsubmit="return confirm('Delete @e.Name?')">
                                 <input type="hidden" name="id" value="@e.Id" />

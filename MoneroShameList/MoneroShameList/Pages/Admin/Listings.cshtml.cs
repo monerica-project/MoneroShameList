@@ -23,7 +23,6 @@ public class ListingsModel(AppDbContext db) : PageModel
     {
         var entry = await db.ShameEntries.FindAsync(id);
         if (entry == null) return NotFound();
-
         entry.IsActive = !entry.IsActive;
         await db.SaveChangesAsync();
         TempData["Message"] = $"'{entry.Name}' is now {(entry.IsActive ? "visible" : "hidden")}.";
@@ -34,7 +33,6 @@ public class ListingsModel(AppDbContext db) : PageModel
     {
         var entry = await db.ShameEntries.FindAsync(id);
         if (entry == null) return NotFound();
-
         db.ShameEntries.Remove(entry);
         await db.SaveChangesAsync();
         TempData["Message"] = $"'{entry.Name}' deleted.";

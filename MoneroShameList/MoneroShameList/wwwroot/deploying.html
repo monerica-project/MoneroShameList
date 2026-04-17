@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Updating — MoneroShameList.com</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --orange: #F26822;
+            --bg: #111;
+            --bg2: #1a1a1a;
+            --border: #2e2e2e;
+            --text: #e0e0e0;
+            --muted: #888;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+        .logo-wrap {
+            margin-bottom: 1.5rem;
+        }
+        .logo-wrap img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        h1 span { color: var(--orange); }
+        .tld { color: var(--muted); font-weight: 400; }
+        p {
+            color: var(--muted);
+            font-size: 1rem;
+            max-width: 420px;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+        .spinner {
+            margin: 2rem auto 0;
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--orange);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        footer {
+            position: fixed;
+            bottom: 1.5rem;
+            color: #444;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-wrap">
+        <img src="/images/monero-symbol-on-white-480.png" alt="Monero" />
+    </div>
+    <h1><span>MoneroShameList</span><span class="tld">.com</span></h1>
+    <p>We're deploying an update. The site will be back in a moment.</p>
+    <p>Thank you for your patience.</p>
+    <div class="spinner"></div>
+    <footer>Sponsored by <a href="https://monerica.com" style="color:#F26822;text-decoration:none">Monerica.com</a></footer>
+</body>
+</html>

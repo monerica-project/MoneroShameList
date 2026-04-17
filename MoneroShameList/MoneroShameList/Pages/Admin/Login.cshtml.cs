@@ -25,10 +25,13 @@ public class LoginModel(IConfiguration config) : PageModel
             return Page();
         }
 
-        var claims = new List<Claim> { new(ClaimTypes.Name, Username), new(ClaimTypes.Role, "Admin") };
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.Name, Username),
+            new(ClaimTypes.Role, "Admin")
+        };
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
-
         return RedirectToPage("/Admin/Index");
     }
 

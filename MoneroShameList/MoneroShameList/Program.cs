@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using MoneroShameList.Data;
 
@@ -21,20 +21,34 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddAuthorization();
 
+var keysPath = builder.Environment.IsDevelopment()
+    ? Path.Combine(builder.Environment.ContentRootPath, "dataprotection-keys")
+    : "/var/www/moneroshamelist/dataprotection-keys";
+
+Directory.CreateDirectory(keysPath);
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
+    .SetApplicationName("MoneroShameList");
+
 var app = builder.Build();
 
-// Run EF migrations on startup
+// -- Migrate-only mode --------------------------------------------------------
+if (args.Contains("--migrate-only"))
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
+    Console.WriteLine("Migrations complete.");
+    return;
+}
+
+// -- Auto-migrate on startup --------------------------------------------------
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
+    await db.Database.MigrateAsync();
 }
-
-// Trust the X-Forwarded-Proto header from nginx so the app sees HTTPS correctly
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
 
 if (!app.Environment.IsDevelopment())
 {
@@ -42,7 +56,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-// Do not call UseHttpsRedirection — Kestrel runs HTTP-only behind nginx
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();

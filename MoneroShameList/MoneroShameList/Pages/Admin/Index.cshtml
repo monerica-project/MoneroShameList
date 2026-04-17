@@ -39,6 +39,7 @@ else
             <div class="submission-meta">
                 Submitted @s.SubmittedAt.ToString("MMM d, yyyy HH:mm UTC")
                 @if (!string.IsNullOrWhiteSpace(s.SubmitterEmail)) { <span> · @s.SubmitterEmail</span> }
+                · <span class="badge badge-@s.Category.ToString().ToLower()">@s.Category</span>
             </div>
 
             <div class="submission-field">
@@ -60,10 +61,25 @@ else
                     <a href="@s.ContactUrl" target="_blank" rel="noopener">@s.ContactUrl</a>
                 </div>
             }
-
-            @if (s.Status == SubmissionStatus.Pending)
+            @if (!string.IsNullOrWhiteSpace(s.MoneroAlternativeUrl))
             {
-                <div class="submission-actions">
+                <div class="submission-field">
+                    <strong>Monero Alternative</strong>
+                    <a href="@s.MoneroAlternativeUrl" target="_blank" rel="noopener">@s.MoneroAlternativeUrl</a>
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(s.AdminNote))
+            {
+                <div class="submission-field">
+                    <strong>Admin Note</strong>
+                    @s.AdminNote
+                </div>
+            }
+
+            <div class="submission-actions">
+                <a href="/Admin/EditSubmission?id=@s.Id" class="btn btn-ghost btn-sm">✏ Edit</a>
+                @if (s.Status == SubmissionStatus.Pending)
+                {
                     <form method="post" asp-page-handler="Approve">
                         <input type="hidden" name="id" value="@s.Id" />
                         <button type="submit" class="btn btn-success btn-sm">✔ Approve</button>
@@ -72,14 +88,20 @@ else
                         <input type="hidden" name="id" value="@s.Id" />
                         <button type="submit" class="btn btn-danger btn-sm">✖ Reject</button>
                     </form>
-                </div>
-            }
-            else
-            {
-                <div style="margin-top:0.75rem">
-                    <span class="badge badge-@s.Status.ToString().ToLower()">@s.Status</span>
-                </div>
-            }
+                }
+                else if (s.Status == SubmissionStatus.Rejected)
+                {
+                    <form method="post" asp-page-handler="ReApprove">
+                        <input type="hidden" name="id" value="@s.Id" />
+                        <button type="submit" class="btn btn-success btn-sm">✔ Approve</button>
+                    </form>
+                    <span class="badge badge-rejected" style="align-self:center">Rejected</span>
+                }
+                else
+                {
+                    <span class="badge badge-approved" style="align-self:center">Approved</span>
+                }
+            </div>
         </div>
     }
 }

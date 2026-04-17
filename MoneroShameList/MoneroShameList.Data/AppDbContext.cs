@@ -7,4 +7,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<ShameEntry> ShameEntries => Set<ShameEntry>();
     public DbSet<Submission> Submissions => Set<Submission>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ShameEntry>()
+            .HasIndex(e => e.Slug)
+            .IsUnique();
+    }
 }

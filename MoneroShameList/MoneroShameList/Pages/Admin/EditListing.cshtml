@@ -1,4 +1,5 @@
 @page
+@using MoneroShameList.Models
 @model MoneroShameList.Pages.Admin.EditListingModel
 @{
     var isNew = Model.Input.Id == 0;
@@ -30,6 +31,16 @@
         </div>
 
         <div class="form-group">
+            <label asp-for="Input.Category">Category *</label>
+            <select asp-for="Input.Category">
+                <option value="@ShameCategory.NeverAdded">Never Added XMR</option>
+                <option value="@ShameCategory.DelistedXmr">Delisted XMR</option>
+                <option value="@ShameCategory.AllowsOtherCrypto">Allows Other Crypto Only</option>
+            </select>
+            <span asp-validation-for="Input.Category" class="field-error"></span>
+        </div>
+
+        <div class="form-group">
             <label asp-for="Input.Description">Description *</label>
             <textarea asp-for="Input.Description" placeholder="Who are they and what do they do?"></textarea>
             <span asp-validation-for="Input.Description" class="field-error"></span>
@@ -45,6 +56,19 @@
             <label asp-for="Input.ContactUrl">Contact URL</label>
             <input asp-for="Input.ContactUrl" type="url" placeholder="https://" />
             <span asp-validation-for="Input.ContactUrl" class="field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Input.MoneroAlternativeUrl">Monero Alternative URL</label>
+            <input asp-for="Input.MoneroAlternativeUrl" type="url" placeholder="https://" />
+            <div class="hint">A competing service that accepts Monero.</div>
+            <span asp-validation-for="Input.MoneroAlternativeUrl" class="field-error"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Input.AdminComment">Admin Comment</label>
+            <textarea asp-for="Input.AdminComment" placeholder="Optional public note shown on the listing."></textarea>
+            <div class="hint">Shown publicly on the listing. Leave blank to hide.</div>
         </div>
 
         <div class="form-group">

@@ -1,4 +1,3 @@
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -26,7 +25,7 @@ header { background: var(--bg2); border-bottom: 1px solid var(--border); positio
 .header-inner { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 60px; }
 
 .site-logo { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--text); font-weight: 700; font-size: 1.15rem; }
-.xmr-symbol { font-size: 1.6rem; color: var(--orange); line-height: 1; }
+ 
 .tld { color: var(--muted); font-weight: 400; }
 
 nav { display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap; }
@@ -165,13 +164,94 @@ td a { color: var(--orange); }
     table { font-size: 0.8rem; }
 }
 
-/* remove the old ɱ symbol rule and replace with: */
+/* CATEGORY TABS */
+.category-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0;
+    flex-wrap: wrap;
+}
+
+.cat-tab {
+    padding: 0.45rem 1rem;
+    border-radius: 5px 5px 0 0;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    background: var(--bg2);
+    color: var(--muted);
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: color 0.15s, background 0.15s;
+}
+
+.cat-tab:hover { color: var(--text); text-decoration: none; }
+.cat-tab.active { background: var(--bg3); color: var(--orange); border-color: var(--orange); }
+
+/* SHAME BADGES — variants */
+.shame-badge-delisted {
+    background: rgba(224,85,85,0.15);
+    color: #e05555;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.shame-badge-other {
+    background: rgba(255,193,7,0.12);
+    color: #f5c400;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+/* ADMIN COMMENT */
+.admin-comment {
+    background: rgba(242,104,34,0.07);
+    border-left: 2px solid var(--orange);
+    padding: 0.5rem 0.75rem;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.875rem;
+    color: #ccc;
+    margin-bottom: 0.75rem;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.admin-comment strong { color: var(--orange); }
+
+/* ALTERNATIVE BOX */
+.alternative-box {
+    background: rgba(76,175,125,0.08);
+    border-left: 2px solid var(--success);
+    padding: 0.5rem 0.75rem;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.875rem;
+    color: #ccc;
+    margin-bottom: 0.75rem;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.alternative-box strong { color: var(--success); }
+.alternative-box a { color: var(--success); }
+
+/* ADMIN BADGE VARIANTS */
+.badge-delisted { background: rgba(224,85,85,0.15); color: #e05555; }
+.badge-other { background: rgba(255,193,7,0.12); color: #f5c400; }
+
 .xmr-logo {
     width: 32px;
     height: 32px;
     border-radius: 50%;
     object-fit: cover;
-    object-position: center;
     flex-shrink: 0;
     display: block;
 }
@@ -187,20 +267,9 @@ td a { color: var(--orange); }
     height: 72px;
     border-radius: 50%;
     object-fit: cover;
-    object-position: center;
     display: block;
     box-shadow: 0 0 0 3px var(--orange-dim);
 }
-
-.shame-why, .shame-description {
-    overflow-wrap: break-word;
-    word-break: break-word;
-}
-
-    .shame-why a, .shame-description a {
-        overflow-wrap: break-word;
-        word-break: break-all;
-    }
 
 .donation-card {
     background: var(--bg3);
