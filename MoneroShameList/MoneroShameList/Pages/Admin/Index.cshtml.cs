@@ -14,16 +14,33 @@ public class AdminIndexModel(AppDbContext db) : PageModel
     public List<Submission> Submissions { get; set; } = [];
     public string Status { get; set; } = "pending";
     public int PendingCount { get; set; }
+    public int ConvertedCount { get; set; }
 
     public async Task OnGetAsync(string? status)
     {
-        Status = status is "approved" or "rejected" ? status : "pending";
-        var parsed = Enum.Parse<SubmissionStatus>(Status, ignoreCase: true);
-        Submissions = await db.Submissions
-            .Where(s => s.Status == parsed)
-            .OrderByDescending(s => s.SubmittedAt)
-            .ToListAsync();
-        PendingCount = await db.Submissions.CountAsync(s => s.Status == SubmissionStatus.Pending);
+        Status = status is "approved" or "rejected" or "converted" ? status : "pending";
+
+        if (Status == "converted")
+        {
+            Submissions = await db.Submissions
+                .Where(s => s.Status == SubmissionStatus.Pending && s.Category == ShameCategory.Converted)
+                .OrderByDescending(s => s.SubmittedAt)
+                .ToListAsync();
+        }
+        else
+        {
+            var parsed = Enum.Parse<SubmissionStatus>(Status, ignoreCase: true);
+            Submissions = await db.Submissions
+                .Where(s => s.Status == parsed && s.Category != ShameCategory.Converted)
+                .OrderByDescending(s => s.SubmittedAt)
+                .ToListAsync();
+        }
+
+        PendingCount = await db.Submissions.CountAsync(s =>
+            s.Status == SubmissionStatus.Pending && s.Category != ShameCategory.Converted);
+
+        ConvertedCount = await db.Submissions.CountAsync(s =>
+            s.Status == SubmissionStatus.Pending && s.Category == ShameCategory.Converted);
     }
 
     public async Task<IActionResult> OnPostApproveAsync(int id)
@@ -55,7 +72,8 @@ public class AdminIndexModel(AppDbContext db) : PageModel
 
         await db.SaveChangesAsync();
         TempData["Message"] = $"'{submission.Name}' approved and added to the list.";
-        return RedirectToPage(new { status = "pending" });
+        var returnStatus = submission.Category == ShameCategory.Converted ? "converted" : "pending";
+        return RedirectToPage(new { status = returnStatus });
     }
 
     public async Task<IActionResult> OnPostRejectAsync(int id)
@@ -63,10 +81,11 @@ public class AdminIndexModel(AppDbContext db) : PageModel
         var submission = await db.Submissions.FindAsync(id);
         if (submission == null) return NotFound();
 
+        var returnStatus = submission.Category == ShameCategory.Converted ? "converted" : "pending";
         submission.Status = SubmissionStatus.Rejected;
         await db.SaveChangesAsync();
         TempData["Message"] = $"'{submission.Name}' rejected.";
-        return RedirectToPage(new { status = "pending" });
+        return RedirectToPage(new { status = returnStatus });
     }
 
     public async Task<IActionResult> OnPostReApproveAsync(int id)

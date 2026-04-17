@@ -338,3 +338,37 @@ td a { color: var(--orange); }
         overflow-wrap: break-word;
         word-break: break-all;
     }
+
+.shame-badge-converted {
+    background: rgba(76,175,125,0.15);
+    color: #4caf7d;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.shame-badge-scammer {
+    background: rgba(155,89,182,0.15);
+    color: #b07fd4;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.badge-converted {
+    background: rgba(76,175,125,0.15);
+    color: #4caf7d;
+}
+
+.badge-scammer {
+    background: rgba(155,89,182,0.15);
+    color: #b07fd4;
+}

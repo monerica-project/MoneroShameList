@@ -39,12 +39,14 @@ else
             {
                 ShameCategory.DelistedXmr => "shame-badge shame-badge-delisted",
                 ShameCategory.AllowsOtherCrypto => "shame-badge shame-badge-other",
+                ShameCategory.Scammer => "shame-badge shame-badge-scammer",
                 _ => "shame-badge"
             };
             var badgeText = e.Category switch
             {
                 ShameCategory.DelistedXmr => "Delisted XMR",
                 ShameCategory.AllowsOtherCrypto => "Other Crypto Only",
+                ShameCategory.Scammer => "Scammer",
                 _ => "Never Added XMR"
             };
 
@@ -65,7 +67,6 @@ else
                 {
                     <div class="admin-comment"><strong>📌 Note:</strong> @TextHelpers.Linkify(e.AdminComment)</div>
                 }
-
                 @if (!string.IsNullOrWhiteSpace(e.MoneroAlternativeUrl))
                 {
                     <div class="alternative-box">
@@ -87,5 +88,20 @@ else
                 </div>
             </div>
         }
+    </div>
+}
+
+@if (Model.Converted.Count > 0)
+{
+    <div class="converted-section">
+        <p class="converted-heading">
+            ✅ <strong>@Model.Converted.Count</strong> @(Model.Converted.Count == 1 ? "company" : "companies") that were shamed and now accept Monero:
+            @for (var ci = 0; ci < Model.Converted.Count; ci++)
+            {
+                var c = Model.Converted[ci];
+                <a href="/company/@c.Slug" class="converted-link">@c.Name</a>
+                @(ci < Model.Converted.Count - 1 ? ", " : "")
+            }
+        </p>
     </div>
 }

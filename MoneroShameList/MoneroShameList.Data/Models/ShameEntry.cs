@@ -6,7 +6,9 @@ public enum ShameCategory
 {
     NeverAdded,
     DelistedXmr,
-    AllowsOtherCrypto
+    AllowsOtherCrypto,
+    Converted,
+    Scammer
 }
 
 public class ShameEntry

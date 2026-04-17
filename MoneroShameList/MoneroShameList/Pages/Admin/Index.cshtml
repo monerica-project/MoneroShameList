@@ -14,6 +14,9 @@
     <a href="?status=pending" class="admin-tab @(Model.Status == "pending" ? "active" : "")">
         Pending <span class="badge badge-pending">@Model.PendingCount</span>
     </a>
+    <a href="?status=converted" class="admin-tab @(Model.Status == "converted" ? "active" : "")">
+        Converted <span class="badge badge-converted">@Model.ConvertedCount</span>
+    </a>
     <a href="?status=approved" class="admin-tab @(Model.Status == "approved" ? "active" : "")">Approved</a>
     <a href="?status=rejected" class="admin-tab @(Model.Status == "rejected" ? "active" : "")">Rejected</a>
 </div>
@@ -38,7 +41,10 @@ else
             <h3>@s.Name</h3>
             <div class="submission-meta">
                 Submitted @s.SubmittedAt.ToString("MMM d, yyyy HH:mm UTC")
-                @if (!string.IsNullOrWhiteSpace(s.SubmitterEmail)) { <span> · @s.SubmitterEmail</span> }
+                @if (!string.IsNullOrWhiteSpace(s.SubmitterEmail))
+                {
+                    <span> · @s.SubmitterEmail</span>
+                }
                 · <span class="badge badge-@s.Category.ToString().ToLower()">@s.Category</span>
             </div>
 
