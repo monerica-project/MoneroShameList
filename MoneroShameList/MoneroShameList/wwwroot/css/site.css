@@ -328,3 +328,13 @@ td a { color: var(--orange); }
         color: var(--success);
         border-color: var(--success);
     }
+
+.shame-why, .shame-description {
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+    .shame-why a, .shame-description a {
+        overflow-wrap: break-word;
+        word-break: break-all;
+    }
