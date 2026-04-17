@@ -33,6 +33,12 @@ public class AdminIndexModel(AppDbContext db) : PageModel
 
         submission.Status = SubmissionStatus.Approved;
 
+        var baseSlug = SlugHelper.Generate(submission.Name);
+        var slug = baseSlug;
+        var i = 2;
+        while (await db.ShameEntries.AnyAsync(e => e.Slug == slug))
+            slug = $"{baseSlug}-{i++}";
+
         db.ShameEntries.Add(new ShameEntry
         {
             Name = submission.Name,
@@ -42,6 +48,7 @@ public class AdminIndexModel(AppDbContext db) : PageModel
             ContactUrl = submission.ContactUrl,
             MoneroAlternativeUrl = submission.MoneroAlternativeUrl,
             Category = submission.Category,
+            Slug = slug,
             DateAdded = DateTime.UtcNow,
             IsActive = true
         });
@@ -73,14 +80,14 @@ public class AdminIndexModel(AppDbContext db) : PageModel
             e.Name.ToLower() == submission.Name.ToLower() ||
             e.Website.ToLower().TrimEnd('/') == submission.Website.ToLower().TrimEnd('/'));
 
-        var baseSlug = SlugHelper.Generate(submission.Name);
-        var slug = baseSlug;
-        var i = 2;
-        while (await db.ShameEntries.AnyAsync(e => e.Slug == slug))
-            slug = $"{baseSlug}-{i++}";
-
         if (!alreadyExists)
         {
+            var baseSlug = SlugHelper.Generate(submission.Name);
+            var slug = baseSlug;
+            var i = 2;
+            while (await db.ShameEntries.AnyAsync(e => e.Slug == slug))
+                slug = $"{baseSlug}-{i++}";
+
             db.ShameEntries.Add(new ShameEntry
             {
                 Name = submission.Name,
@@ -90,8 +97,8 @@ public class AdminIndexModel(AppDbContext db) : PageModel
                 ContactUrl = submission.ContactUrl,
                 MoneroAlternativeUrl = submission.MoneroAlternativeUrl,
                 Category = submission.Category,
-                DateAdded = DateTime.UtcNow,
                 Slug = slug,
+                DateAdded = DateTime.UtcNow,
                 IsActive = true
             });
         }
