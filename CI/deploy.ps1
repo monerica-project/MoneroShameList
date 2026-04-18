@@ -96,6 +96,104 @@ function Build-NginxConf([bool]$ssl) {
     return $conf
 }
 
+# -- Maintenance page ----------------------------------------------------------
+# Swaps nginx to a static HTML page while the app service is stopped.
+# Step 7 always restores the real proxy config afterwards.
+
+$MaintenanceHtml = @'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="15">
+  <title>Updating - MoneroShameList</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f0f0f;
+      color: #e0e0e0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .card { text-align: center; padding: 3rem 2.5rem; max-width: 440px; }
+    .icon {
+      font-size: 2.8rem;
+      margin-bottom: 1.25rem;
+      display: inline-block;
+      animation: spin 3s linear infinite;
+    }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.75rem; color: #ff6600; }
+    p  { font-size: 0.95rem; line-height: 1.6; color: #aaa; }
+    .note { margin-top: 1.75rem; font-size: 0.8rem; color: #555; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">&#9881;</div>
+    <h1>Updating in progress</h1>
+    <p>MoneroShameList is being updated and will be back shortly.</p>
+    <p class="note">This page refreshes automatically every 15 seconds.</p>
+  </div>
+</body>
+</html>
+'@
+
+function Enable-MaintenancePage {
+    Write-Step "Enabling maintenance page"
+
+    $htmlFile = Join-Path $env:TEMP "maintenance.html"
+    Save-UnixFile $htmlFile $MaintenanceHtml
+    SCP $htmlFile "/tmp/maintenance.html"
+    SSH "docker exec nginx mkdir -p /var/www"
+    SSH "docker cp /tmp/maintenance.html nginx:/var/www/maintenance.html"
+
+    $certNow = (& $PLINK -ssh -pw $SSH_PASSWORD -batch "$SSH_USER@$SSH_HOST" "test -f /etc/letsencrypt/live/$DOMAIN/fullchain.pem && echo yes || echo no").Trim()
+
+    if ($certNow -eq "yes") {
+        # SSL is active - maintenance config must cover 443 or nginx drops the connection
+        $mConf  = "server {`n"
+        $mConf += "    listen 80;`n"
+        $mConf += "    server_name $DOMAIN www.$DOMAIN;`n"
+        $mConf += "    return 301 https://`$host`$request_uri;`n"
+        $mConf += "}`n`n"
+        $mConf += "server {`n"
+        $mConf += "    listen 443 ssl;`n"
+        $mConf += "    server_name $DOMAIN www.$DOMAIN;`n"
+        $mConf += "    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;`n"
+        $mConf += "    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;`n"
+        $mConf += "    ssl_protocols TLSv1.2 TLSv1.3;`n"
+        $mConf += "    ssl_ciphers HIGH:!aNULL:!MD5;`n"
+        $mConf += "    location / {`n"
+        $mConf += "        root /var/www;`n"
+        $mConf += "        try_files /maintenance.html =503;`n"
+        $mConf += "        add_header Retry-After 30;`n"
+        $mConf += "    }`n"
+        $mConf += "}`n"
+    } else {
+        $mConf  = "server {`n"
+        $mConf += "    listen 80;`n"
+        $mConf += "    server_name $DOMAIN www.$DOMAIN;`n"
+        $mConf += "    location / {`n"
+        $mConf += "        root /var/www;`n"
+        $mConf += "        try_files /maintenance.html =503;`n"
+        $mConf += "        add_header Retry-After 30;`n"
+        $mConf += "    }`n"
+        $mConf += "}`n"
+    }
+
+    $mFile = Join-Path $env:TEMP "$APP_NAME.maint.conf"
+    Save-UnixFile $mFile $mConf
+    SCP $mFile "/tmp/$APP_NAME.conf"
+    SSH "docker cp /tmp/$APP_NAME.conf nginx:/etc/nginx/conf.d/$APP_NAME.conf"
+    SSH "docker exec nginx nginx -s reload"
+    Write-Ok "Maintenance page live"
+}
+
 function Wait-ForApp {
     Write-Step "Waiting for app to become healthy"
     $maxAttempts = 24
@@ -162,6 +260,8 @@ Write-Ok "Config ready"
 
 # -- Step 5: Deploy ------------------------------------------------------------
 Write-Step "Deploying"
+
+Enable-MaintenancePage                                              # <-- show maintenance page
 SSH-Ignore "systemctl stop $APP_NAME 2>/dev/null || true"
 
 $publishOut = Join-Path $PSScriptRoot "..\publish"
@@ -195,7 +295,7 @@ Save-UnixFile $svcFile $svcContent
 SCP $svcFile "/etc/systemd/system/$APP_NAME.service"
 SSH "systemctl daemon-reload && systemctl enable $APP_NAME && systemctl restart $APP_NAME"
 
-Wait-ForApp
+Wait-ForApp                                                         # <-- poll until app responds
 Write-Ok "Deployed on port $APP_PORT"
 
 # -- Step 7: Configure Nginx ---------------------------------------------------
