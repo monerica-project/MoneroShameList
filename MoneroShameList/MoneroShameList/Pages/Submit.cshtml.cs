@@ -16,16 +16,20 @@ public class SubmitModel(AppDbContext db) : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
+        // Trim everything before validation
+        Input.Name = Input.Name?.Trim() ?? "";
+        Input.Website = Input.Website?.Trim() ?? "";
+        Input.Description = Input.Description?.Trim() ?? "";
+        Input.WhyShamed = Input.WhyShamed?.Trim() ?? "";
         Input.ContactUrl = string.IsNullOrWhiteSpace(Input.ContactUrl) ? null : Input.ContactUrl.Trim();
         Input.MoneroAlternativeUrl = string.IsNullOrWhiteSpace(Input.MoneroAlternativeUrl) ? null : Input.MoneroAlternativeUrl.Trim();
         Input.SubmitterEmail = string.IsNullOrWhiteSpace(Input.SubmitterEmail) ? null : Input.SubmitterEmail.Trim();
-        Input.Website = Input.Website?.Trim() ?? "";
 
         ModelState.Clear();
         if (!TryValidateModel(Input, nameof(Input)))
             return Page();
 
-        var nameNorm = Input.Name.Trim().ToLower();
+        var nameNorm = Input.Name.ToLower();
         var websiteNorm = Input.Website.ToLower().TrimEnd('/');
 
         bool duplicate = await db.ShameEntries.AnyAsync(e =>
@@ -44,10 +48,10 @@ public class SubmitModel(AppDbContext db) : PageModel
 
         db.Submissions.Add(new Submission
         {
-            Name = Input.Name.Trim(),
+            Name = Input.Name,
             Website = Input.Website,
-            Description = Input.Description.Trim(),
-            WhyShamed = Input.WhyShamed.Trim(),
+            Description = Input.Description,
+            WhyShamed = Input.WhyShamed,
             ContactUrl = Input.ContactUrl,
             MoneroAlternativeUrl = Input.MoneroAlternativeUrl,
             SubmitterEmail = Input.SubmitterEmail,
@@ -70,7 +74,7 @@ public class SubmitInput
 
     [Required(ErrorMessage = "Website is required.")]
     [MaxLength(500, ErrorMessage = "Website URL must be 500 characters or fewer.")]
-    [Url(ErrorMessage = "Please enter a valid URL including https://.")]
+    [StrictUrl(ErrorMessage = "Please enter a valid URL starting with https:// or http://.")]
     public string Website { get; set; } = "";
 
     public ShameCategory Category { get; set; } = ShameCategory.NeverAdded;
@@ -84,14 +88,45 @@ public class SubmitInput
     public string WhyShamed { get; set; } = "";
 
     [MaxLength(500, ErrorMessage = "URL must be 500 characters or fewer.")]
-    [Url(ErrorMessage = "Please enter a valid URL including https://.")]
+    [StrictUrl(ErrorMessage = "Please enter a valid URL starting with https:// or http://.")]
     public string? ContactUrl { get; set; }
 
     [MaxLength(500, ErrorMessage = "URL must be 500 characters or fewer.")]
-    [Url(ErrorMessage = "Please enter a valid URL including https://.")]
+    [StrictUrl(ErrorMessage = "Please enter a valid URL starting with https:// or http://.")]
     public string? MoneroAlternativeUrl { get; set; }
 
     [MaxLength(200, ErrorMessage = "Email must be 200 characters or fewer.")]
     [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
     public string? SubmitterEmail { get; set; }
+}
+
+public class StrictUrlAttribute : ValidationAttribute
+{
+    public override bool IsValid(object? value)
+    {
+        if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
+            return true; // optional fields — Required handles the not-null case
+
+        var url = value.ToString()!.Trim();
+
+        if (!url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) &&
+            !url.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+            return false;
+
+        // Must have a host with at least one dot (rules out http://localhost, http://x, etc.)
+        var host = uri.Host;
+        if (!host.Contains('.')) return false;
+
+        // Host segments must be non-empty on both sides of the dot
+        var parts = host.Split('.');
+        if (parts.Any(p => string.IsNullOrWhiteSpace(p))) return false;
+
+        // TLD must be at least 2 chars
+        if (parts.Last().Length < 2) return false;
+
+        return true;
+    }
 }
