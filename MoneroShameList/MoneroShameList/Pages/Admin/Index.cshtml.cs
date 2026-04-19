@@ -16,6 +16,8 @@ public class AdminIndexModel(AppDbContext db) : PageModel
     public int PendingCount { get; set; }
     public int ConvertedCount { get; set; }
     public int MixedCount { get; set; }
+    public int ApprovedCount { get; set; }
+    public int RejectedCount { get; set; }
 
     public async Task OnGetAsync(string? status)
     {
@@ -45,6 +47,16 @@ public class AdminIndexModel(AppDbContext db) : PageModel
                 .OrderByDescending(s => s.SubmittedAt)
                 .ToListAsync();
         }
+
+        ApprovedCount = await db.Submissions.CountAsync(s =>
+            s.Status == SubmissionStatus.Approved
+            && s.Category != ShameCategory.Converted
+            && s.Category != ShameCategory.MixedSupport);
+
+        RejectedCount = await db.Submissions.CountAsync(s =>
+            s.Status == SubmissionStatus.Rejected
+            && s.Category != ShameCategory.Converted
+            && s.Category != ShameCategory.MixedSupport);
 
         PendingCount = await db.Submissions.CountAsync(s =>
             s.Status == SubmissionStatus.Pending

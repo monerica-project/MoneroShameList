@@ -14,11 +14,18 @@
     <a href="?status=pending" class="admin-tab @(Model.Status == "pending" ? "active" : "")">
         Pending <span class="badge badge-pending">@Model.PendingCount</span>
     </a>
+    <a href="?status=mixed" class="admin-tab @(Model.Status == "mixed" ? "active" : "")">
+        Mixed Support <span class="badge badge-mixedsupport">@Model.MixedCount</span>
+    </a>
     <a href="?status=converted" class="admin-tab @(Model.Status == "converted" ? "active" : "")">
         Converted <span class="badge badge-converted">@Model.ConvertedCount</span>
     </a>
-    <a href="?status=approved" class="admin-tab @(Model.Status == "approved" ? "active" : "")">Approved</a>
-    <a href="?status=rejected" class="admin-tab @(Model.Status == "rejected" ? "active" : "")">Rejected</a>
+    <a href="?status=approved" class="admin-tab @(Model.Status == "approved" ? "active" : "")">
+        Approved <span class="badge badge-approved">@Model.ApprovedCount</span>
+    </a>
+    <a href="?status=rejected" class="admin-tab @(Model.Status == "rejected" ? "active" : "")">
+        Rejected <span class="badge badge-rejected">@Model.RejectedCount</span>
+    </a>
 </div>
 
 @if (TempData["Message"] is string msg)
