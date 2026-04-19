@@ -252,8 +252,41 @@ Write-Ok "Database ready"
 
 # -- Step 4: Write appsettings.json --------------------------------------------
 Write-Step "Writing config"
+
 $connString = "Host=localhost;Port=5432;Database=$DB_NAME;Username=$DB_USER;Password=$DB_PASSWORD"
-$appSettings = "{`n  `"ConnectionStrings`": {`n    `"DefaultConnection`": `"$connString`"`n  },`n  `"Admin`": {`n    `"Username`": `"$ADMIN_USERNAME`",`n    `"Password`": `"$ADMIN_PASSWORD`"`n  }`n}`n"
+
+# If Tor is already set up on the server, grab the onion hostname so we can
+# include it in the app's config (used for Onion-Location header + footer).
+$onionHost = ""
+try {
+    $onionHost = (& $PLINK -ssh -pw $SSH_PASSWORD -batch "$SSH_USER@$SSH_HOST" `
+        "cat /var/lib/tor/moneroshamelist/hostname 2>/dev/null || echo ''").Trim()
+} catch {
+    $onionHost = ""
+}
+
+if ($onionHost) {
+    Write-Host "    Found onion: $onionHost" -ForegroundColor Gray
+}
+
+$cfg = [ordered]@{
+    ConnectionStrings = @{
+        DefaultConnection = $connString
+    }
+    Admin = [ordered]@{
+        Username = $ADMIN_USERNAME
+        Password = $ADMIN_PASSWORD
+    }
+}
+
+if ($onionHost) {
+    $cfg.Tor = [ordered]@{
+        OnionHost = $onionHost
+    }
+}
+
+$appSettings = ($cfg | ConvertTo-Json -Depth 5) + "`n"
+
 $appSettingsFile = Join-Path $env:TEMP "appsettings.json"
 Save-UnixFile $appSettingsFile $appSettings
 Write-Ok "Config ready"

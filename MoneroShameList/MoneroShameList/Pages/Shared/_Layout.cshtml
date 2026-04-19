@@ -1,3 +1,4 @@
+@inject IConfiguration Configuration
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,7 +39,16 @@
         <div class="footer-inner">
             <p>Sponsored by <a href="https://monerica.com" target="_blank" rel="noopener">Monerica.com</a> &mdash; the Monero circular economy directory.</p>
             <p class="footer-tagline">Privacy-focused means nothing if you reject private money.</p>
-            <p><a href="http://2uizuh2kuojpnxh3vy63m5zvxnyx4q5extc7hmom3bjlznwsxwo5ewad.onion" class="onion-link">&#x1F9C5; .onion</a></p>
+            @{
+                var onionHost = Configuration["Tor:OnionHost"];
+            }
+            @if (!string.IsNullOrEmpty(onionHost))
+            {
+                <p>
+                    <a href="http://@onionHost@(Context.Request.Path)@(Context.Request.QueryString)"
+                       class="onion-link">&#x1F9C5; .onion</a>
+                </p>
+            }
             <p><a href="https://github.com/monerica-project/MoneroShameList" target="_blank">Code</a></p>
         </div>
     </footer>
