@@ -48,6 +48,17 @@ public class AdminIndexModel(AppDbContext db) : PageModel
                 .ToListAsync();
         }
 
+        PendingCount = await db.Submissions.CountAsync(s =>
+            s.Status == SubmissionStatus.Pending
+            && s.Category != ShameCategory.Converted
+            && s.Category != ShameCategory.MixedSupport);
+
+        MixedCount = await db.Submissions.CountAsync(s =>
+            s.Category == ShameCategory.MixedSupport);
+
+        ConvertedCount = await db.Submissions.CountAsync(s =>
+            s.Category == ShameCategory.Converted);
+
         ApprovedCount = await db.Submissions.CountAsync(s =>
             s.Status == SubmissionStatus.Approved
             && s.Category != ShameCategory.Converted
@@ -57,19 +68,6 @@ public class AdminIndexModel(AppDbContext db) : PageModel
             s.Status == SubmissionStatus.Rejected
             && s.Category != ShameCategory.Converted
             && s.Category != ShameCategory.MixedSupport);
-
-        PendingCount = await db.Submissions.CountAsync(s =>
-            s.Status == SubmissionStatus.Pending
-            && s.Category != ShameCategory.Converted
-            && s.Category != ShameCategory.MixedSupport);
-
-        ConvertedCount = await db.Submissions.CountAsync(s =>
-            s.Category == ShameCategory.Converted
-            && s.Status == SubmissionStatus.Pending);
-
-        MixedCount = await db.Submissions.CountAsync(s =>
-            s.Category == ShameCategory.MixedSupport
-            && s.Status == SubmissionStatus.Pending);
     }
 
     public async Task<IActionResult> OnPostApproveAsync(int id)
