@@ -8,7 +8,8 @@ public enum ShameCategory
     DelistedXmr,
     AllowsOtherCrypto,
     Converted,
-    Scammer
+    Scammer,
+    MixedSupport
 }
 
 public class ShameEntry

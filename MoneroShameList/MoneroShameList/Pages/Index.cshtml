@@ -15,92 +15,69 @@
     <a href="/Submit" class="btn btn-primary">Submit a Company</a>
 </div>
 
+<div class="index-tabs">
+    <a href="?tab=shame&sort=@Model.Sort" class="index-tab @(Model.Tab == "shame" ? "active" : "")">
+        Shame List <span class="tab-count">@Model.Entries.Count</span>
+    </a>
+    <a href="?tab=mixed&sort=@Model.Sort" class="index-tab index-tab-mixed @(Model.Tab == "mixed" ? "active" : "")">
+        Mixed Support <span class="tab-count">@Model.MixedSupport.Count</span>
+    </a>
+    <a href="?tab=converted&sort=@Model.Sort" class="index-tab index-tab-converted @(Model.Tab == "converted" ? "active" : "")">
+        Converted ✅ <span class="tab-count">@Model.Converted.Count</span>
+    </a>
+</div>
+
 <div class="sort-bar">
     <span>Sort by:</span>
-    <a href="?sort=date" class="@(Model.Sort == "date" ? "active" : "")">Date Added</a>
-    <a href="?sort=name" class="@(Model.Sort == "name" ? "active" : "")">Name (A–Z)</a>
+    <a href="?tab=@Model.Tab&sort=date" class="@(Model.Sort == "date" ? "active" : "")">Date Added</a>
+    <a href="?tab=@Model.Tab&sort=name" class="@(Model.Sort == "name" ? "active" : "")">Name (A–Z)</a>
 </div>
 
-<div class="list-header-row">
-    <p class="entry-count"><strong>@Model.Entries.Count</strong> @(Model.Entries.Count == 1 ? "company" : "companies") currently listed</p>
-    @if (Model.Converted.Count > 0)
-    {
-        <p class="converted-inline">
-            ✅ <strong>@Model.Converted.Count</strong> converted:
-            @for (var ci = 0; ci < Model.Converted.Count; ci++)
-            {
-                var c = Model.Converted[ci];
-                <a href="/company/@c.Slug" class="converted-link">@c.Name</a>
-                @(ci < Model.Converted.Count - 1 ? ", " : "")
-            }
-        </p>
-    }
-</div>
-
-@if (Model.Entries.Count == 0)
+@if (Model.Tab == "shame")
 {
-    <div class="empty-state">
-        <div class="big-icon">🏆</div>
-        <p>No entries yet. Know a privacy hypocrite? <a href="/Submit">Submit them.</a></p>
-    </div>
+    @await Html.PartialAsync("_EntryList", Model.Entries)
+}
+else if (Model.Tab == "mixed")
+{
+    <p class="tab-description">These companies have partial or unofficial Monero support — they accept it through a third party or don't promote it openly.</p>
+    @await Html.PartialAsync("_EntryList", Model.MixedSupport)
 }
 else
 {
-    <div class="shame-list">
-        @foreach (var e in Model.Entries)
-        {
-            var badgeClass = e.Category switch
+    <p class="tab-description">These companies were on the shame list and have since added proper Monero support.</p>
+    @if (Model.Converted.Count == 0)
+    {
+        <div class="empty-state">
+            <div class="big-icon">⏳</div>
+            <p>None yet. Keep the pressure on.</p>
+        </div>
+    }
+    else
+    {
+        <div class="shame-list">
+            @foreach (var e in Model.Converted)
             {
-                ShameCategory.DelistedXmr => "shame-badge shame-badge-delisted",
-                ShameCategory.AllowsOtherCrypto => "shame-badge shame-badge-other",
-                ShameCategory.Scammer => "shame-badge shame-badge-scammer",
-                _ => "shame-badge"
-            };
-            var badgeText = e.Category switch
-            {
-                ShameCategory.DelistedXmr => "Delisted XMR",
-                ShameCategory.AllowsOtherCrypto => "Other Crypto Only",
-                ShameCategory.Scammer => "Scammer",
-                _ => "Never Added XMR"
-            };
-
-            <div class="shame-card">
-                <div class="shame-card-header">
-                    <div>
-                        <div class="company-name">
-                            <a href="/company/@e.Slug" style="color:var(--text);text-decoration:none">@e.Name</a>
+                <div class="shame-card shame-card-converted">
+                    <div class="shame-card-header">
+                        <div>
+                            <div class="company-name">
+                                <a href="/company/@e.Slug" style="color:var(--text);text-decoration:none">@e.Name</a>
+                            </div>
+                            <a href="@e.Website" target="_blank" rel="noopener nofollow" class="company-website">@e.Website</a>
                         </div>
-                        <a href="@e.Website" target="_blank" rel="noopener nofollow" class="company-website">@e.Website</a>
+                        <span class="shame-badge shame-badge-converted">Now Accepts XMR</span>
                     </div>
-                    <span class="@badgeClass">@badgeText</span>
-                </div>
-                <div class="shame-description">@TextHelpers.Linkify(e.Description)</div>
-                <div class="shame-why"><strong>Why shamed:</strong> @TextHelpers.Linkify(e.WhyShamed)</div>
-
-                @if (!string.IsNullOrWhiteSpace(e.AdminComment))
-                {
-                    <div class="admin-comment"><strong>📌 Note:</strong> @TextHelpers.Linkify(e.AdminComment)</div>
-                }
-                @if (!string.IsNullOrWhiteSpace(e.MoneroAlternativeUrl))
-                {
-                    <div class="alternative-box">
-                        <strong>✅ Monero alternative:</strong>
-                        <a href="@e.MoneroAlternativeUrl" target="_blank" rel="noopener nofollow">@e.MoneroAlternativeUrl</a>
-                    </div>
-                }
-
-                <div class="shame-card-footer">
-                    @if (!string.IsNullOrWhiteSpace(e.ContactUrl))
+                    <div class="shame-description">@TextHelpers.Linkify(e.Description)</div>
+                    @if (!string.IsNullOrWhiteSpace(e.AdminComment))
                     {
-                        <a href="@e.ContactUrl" target="_blank" rel="noopener nofollow" class="contact-link">📬 Tell them to add Monero</a>
+                        <div class="admin-comment"><strong>📌 Note:</strong> @TextHelpers.Linkify(e.AdminComment)</div>
                     }
-                    else
-                    {
+                    <div class="shame-card-footer">
                         <span></span>
-                    }
-                    <span class="date-added">Added @e.DateAdded.ToString("MMM d, yyyy")</span>
+                        <span class="date-added">Added @e.DateAdded.ToString("MMM d, yyyy")</span>
+                    </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
+    }
 }

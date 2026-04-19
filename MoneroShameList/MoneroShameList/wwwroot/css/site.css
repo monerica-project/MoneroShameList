@@ -408,3 +408,81 @@ td a { color: var(--orange); }
         text-decoration-color: var(--success);
         text-decoration: underline;
     }
+
+.index-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: -1px;
+}
+
+.index-tab {
+    padding: 0.5rem 1.1rem;
+    color: var(--muted);
+    font-size: 0.875rem;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+    .index-tab:hover {
+        color: var(--text);
+        text-decoration: none;
+    }
+
+    .index-tab.active {
+        color: var(--orange);
+        border-bottom-color: var(--orange);
+    }
+
+.index-tab-mixed.active {
+    color: #f5c400;
+    border-bottom-color: #f5c400;
+}
+
+.index-tab-converted.active {
+    color: var(--success);
+    border-bottom-color: var(--success);
+}
+
+.tab-count {
+    font-size: 0.7rem;
+    background: var(--bg3);
+    padding: 0.1rem 0.4rem;
+    border-radius: 10px;
+    color: var(--muted);
+}
+
+.tab-description {
+    font-size: 0.875rem;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+    font-style: italic;
+}
+
+.shame-card-converted {
+    border-left-color: var(--success);
+}
+
+.shame-badge-mixed {
+    background: rgba(255,193,7,0.12);
+    color: #f5c400;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.badge-mixedsupport {
+    background: rgba(255,193,7,0.12);
+    color: #f5c400;
+}
