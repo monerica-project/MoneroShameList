@@ -1,6 +1,6 @@
 # MoneroShameList
 
-A Monero-focused web application for tracking and exposing bad actors in the Monero ecosystem.
+A web application for listing projects which claim to care about privacy but don't accept Monero.
 
 ## Prerequisites
 
