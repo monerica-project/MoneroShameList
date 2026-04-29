@@ -97,3 +97,6 @@ rcf/
 CI/deploy-config.sh
 backups/
 publish/
+MoneroShameList/MoneroShameList/dataprotection-keys/key-ab69c5e0-b5a9-46f9-9728-a3678f91b8f9.xml
+MoneroShameList/MoneroShameList/appsettings.Development.json
+MoneroShameList/MoneroShameList.Data/appsettings.Development.json
