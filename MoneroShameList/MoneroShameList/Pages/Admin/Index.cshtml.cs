@@ -108,61 +108,84 @@ public class AdminIndexModel(AppDbContext db) : PageModel
         };
         return RedirectToPage(new { status = returnStatus });
     }
+public async Task<IActionResult> OnPostRejectAsync(int id)
+{
+    var submission = await db.Submissions.FindAsync(id);
+    if (submission == null) return NotFound();
 
-    public async Task<IActionResult> OnPostRejectAsync(int id)
+    submission.Status = SubmissionStatus.Rejected;
+
+    // Hide any ShameEntry that was created from this submission
+    var nameNorm = submission.Name.ToLower();
+    var websiteNorm = submission.Website.ToLower().TrimEnd('/');
+
+    var matchingEntries = await db.ShameEntries
+        .Where(e => e.Name.ToLower() == nameNorm
+                 || e.Website.ToLower().TrimEnd('/') == websiteNorm)
+        .ToListAsync();
+
+    foreach (var entry in matchingEntries)
     {
-        var submission = await db.Submissions.FindAsync(id);
-        if (submission == null) return NotFound();
-
-        submission.Status = SubmissionStatus.Rejected;
-        await db.SaveChangesAsync();
-        TempData["Message"] = $"'{submission.Name}' rejected.";
-
-        var returnStatus = submission.Category switch
-        {
-            ShameCategory.Converted => "converted",
-            ShameCategory.MixedSupport => "mixed",
-            _ => "pending"
-        };
-        return RedirectToPage(new { status = returnStatus });
+        entry.IsActive = false;
     }
 
-    public async Task<IActionResult> OnPostReApproveAsync(int id)
+    await db.SaveChangesAsync();
+    TempData["Message"] = matchingEntries.Count > 0
+        ? $"'{submission.Name}' rejected and hidden from the public list."
+        : $"'{submission.Name}' rejected.";
+
+    var returnStatus = submission.Category switch
     {
-        var submission = await db.Submissions.FindAsync(id);
-        if (submission == null) return NotFound();
+        ShameCategory.Converted => "converted",
+        ShameCategory.MixedSupport => "mixed",
+        _ => "pending"
+    };
+    return RedirectToPage(new { status = returnStatus });
+}
 
-        submission.Status = SubmissionStatus.Approved;
+public async Task<IActionResult> OnPostReApproveAsync(int id)
+{
+    var submission = await db.Submissions.FindAsync(id);
+    if (submission == null) return NotFound();
 
-        bool alreadyExists = await db.ShameEntries.AnyAsync(e =>
-            e.Name.ToLower() == submission.Name.ToLower() ||
-            e.Website.ToLower().TrimEnd('/') == submission.Website.ToLower().TrimEnd('/'));
+    submission.Status = SubmissionStatus.Approved;
 
-        if (!alreadyExists)
-        {
-            var baseSlug = SlugHelper.Generate(submission.Name);
-            var slug = baseSlug;
-            var i = 2;
-            while (await db.ShameEntries.AnyAsync(e => e.Slug == slug))
-                slug = $"{baseSlug}-{i++}";
+    var nameNorm = submission.Name.ToLower();
+    var websiteNorm = submission.Website.ToLower().TrimEnd('/');
 
-            db.ShameEntries.Add(new ShameEntry
-            {
-                Name = submission.Name,
-                Website = submission.Website,
-                Description = submission.Description,
-                WhyShamed = submission.WhyShamed,
-                ContactUrl = submission.ContactUrl,
-                MoneroAlternativeUrl = submission.MoneroAlternativeUrl,
-                Category = submission.Category,
-                Slug = slug,
-                DateAdded = DateTime.UtcNow,
-                IsActive = true
-            });
-        }
+    var existingEntry = await db.ShameEntries.FirstOrDefaultAsync(e =>
+        e.Name.ToLower() == nameNorm ||
+        e.Website.ToLower().TrimEnd('/') == websiteNorm);
 
-        await db.SaveChangesAsync();
-        TempData["Message"] = $"'{submission.Name}' approved.";
-        return RedirectToPage(new { status = "rejected" });
+    if (existingEntry != null)
+    {
+        existingEntry.IsActive = true;
     }
+    else
+    {
+        var baseSlug = SlugHelper.Generate(submission.Name);
+        var slug = baseSlug;
+        var i = 2;
+        while (await db.ShameEntries.AnyAsync(e => e.Slug == slug))
+            slug = $"{baseSlug}-{i++}";
+
+        db.ShameEntries.Add(new ShameEntry
+        {
+            Name = submission.Name,
+            Website = submission.Website,
+            Description = submission.Description,
+            WhyShamed = submission.WhyShamed,
+            ContactUrl = submission.ContactUrl,
+            MoneroAlternativeUrl = submission.MoneroAlternativeUrl,
+            Category = submission.Category,
+            Slug = slug,
+            DateAdded = DateTime.UtcNow,
+            IsActive = true
+        });
+    }
+
+    await db.SaveChangesAsync();
+    TempData["Message"] = $"'{submission.Name}' approved.";
+    return RedirectToPage(new { status = "rejected" });
+}
 }

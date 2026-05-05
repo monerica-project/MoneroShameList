@@ -87,3 +87,19 @@
         </div>
     </form>
 </div>
+<div style="display:flex;gap:0.75rem;justify-content:space-between;align-items:center;flex-wrap:wrap">
+    <div style="display:flex;gap:0.75rem">
+        <button type="submit" class="btn btn-primary">@(isNew ? "Add to List" : "Save Changes")</button>
+        <a href="/Admin/Listings" class="btn btn-ghost">Cancel</a>
+    </div>
+    @if (!isNew)
+    {
+        <button type="submit"
+                class="btn btn-danger"
+                asp-page-handler="Delete"
+                formnovalidate
+                onclick="return confirm('Permanently delete this listing? This cannot be undone. The linked submission (if any) will be marked as Rejected.');">
+            🗑 Delete
+        </button>
+    }
+</div>

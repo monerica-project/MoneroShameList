@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using MoneroShameList.Data;
+using MoneroShameList.Helpers;
 using MoneroShameList.Models;
 
 namespace MoneroShameList.Pages.Admin;
@@ -55,15 +56,16 @@ public class EditSubmissionModel(AppDbContext db) : PageModel
         s.Category = Input.Category;
         s.Status = Enum.Parse<SubmissionStatus>(Input.Status);
 
-        // If approved, sync changes to the live ShameEntry too
+        // Keep the linked ShameEntry consistent with the submission's status.
+        var entry = await db.ShameEntries.FirstOrDefaultAsync(e =>
+            e.Name.ToLower() == s.Name.ToLower() ||
+            e.Website.ToLower().TrimEnd('/') == s.Website.ToLower().TrimEnd('/'));
+
         if (s.Status == SubmissionStatus.Approved)
         {
-            var entry = await db.ShameEntries.FirstOrDefaultAsync(e =>
-                e.Name.ToLower() == s.Name.ToLower() ||
-                e.Website.ToLower().TrimEnd('/') == s.Website.ToLower().TrimEnd('/'));
-
             if (entry != null)
             {
+                // Sync content AND make sure it's visible.
                 entry.Name = s.Name;
                 entry.Website = s.Website;
                 entry.Description = s.Description;
@@ -71,6 +73,38 @@ public class EditSubmissionModel(AppDbContext db) : PageModel
                 entry.ContactUrl = s.ContactUrl;
                 entry.MoneroAlternativeUrl = s.MoneroAlternativeUrl;
                 entry.Category = s.Category;
+                entry.IsActive = true;
+            }
+            else
+            {
+                // No matching entry — create one (covers Pending → Approved via this page).
+                var baseSlug = SlugHelper.Generate(s.Name);
+                var slug = baseSlug;
+                var i = 2;
+                while (await db.ShameEntries.AnyAsync(e => e.Slug == slug))
+                    slug = $"{baseSlug}-{i++}";
+
+                db.ShameEntries.Add(new ShameEntry
+                {
+                    Name = s.Name,
+                    Website = s.Website,
+                    Description = s.Description,
+                    WhyShamed = s.WhyShamed,
+                    ContactUrl = s.ContactUrl,
+                    MoneroAlternativeUrl = s.MoneroAlternativeUrl,
+                    Category = s.Category,
+                    Slug = slug,
+                    DateAdded = DateTime.UtcNow,
+                    IsActive = true
+                });
+            }
+        }
+        else
+        {
+            // Rejected or Pending → hide from the public list.
+            if (entry != null)
+            {
+                entry.IsActive = false;
             }
         }
 

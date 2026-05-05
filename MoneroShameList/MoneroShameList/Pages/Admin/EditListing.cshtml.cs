@@ -77,7 +77,9 @@ public class EditListingModel(AppDbContext db) : PageModel
         {
             var entry = await db.ShameEntries.FindAsync(Input.Id);
             if (entry == null) return NotFound();
-            
+
+            var wasActive = entry.IsActive;
+
             entry.Slug = await UniqueSlugAsync(SlugHelper.Generate(Input.Name), entry.Id);
             entry.Name = Input.Name.Trim();
             entry.Website = Input.Website.Trim();
@@ -88,11 +90,54 @@ public class EditListingModel(AppDbContext db) : PageModel
             entry.AdminComment = string.IsNullOrWhiteSpace(Input.AdminComment) ? null : Input.AdminComment.Trim();
             entry.Category = Input.Category;
             entry.IsActive = Input.IsActive;
+
+            // If active flag flipped, keep the linked submission in sync so the
+            // admin tabs reflect the same state as the public list.
+            if (wasActive != Input.IsActive)
+            {
+                await SyncLinkedSubmissionAsync(entry.Name, entry.Website, Input.IsActive);
+            }
         }
 
         await db.SaveChangesAsync();
         TempData["Message"] = Input.Id == 0 ? $"'{Input.Name}' added." : $"'{Input.Name}' updated.";
         return RedirectToPage("/Admin/Listings");
+    }
+
+    public async Task<IActionResult> OnPostDeleteAsync()
+    {
+        if (Input.Id == 0) return RedirectToPage("/Admin/Listings");
+
+        var entry = await db.ShameEntries.FindAsync(Input.Id);
+        if (entry == null) return NotFound();
+
+        var name = entry.Name;
+
+        // Reject the linked submission first (while we still have name/website on the entry).
+        await SyncLinkedSubmissionAsync(entry.Name, entry.Website, isActive: false);
+
+        db.ShameEntries.Remove(entry);
+        await db.SaveChangesAsync();
+
+        TempData["Message"] = $"'{name}' deleted.";
+        return RedirectToPage("/Admin/Listings");
+    }
+
+    private async Task SyncLinkedSubmissionAsync(string name, string website, bool isActive)
+    {
+        var nameNorm = name.ToLower();
+        var websiteNorm = website.ToLower().TrimEnd('/');
+
+        var submissions = await db.Submissions
+            .Where(s => s.Name.ToLower() == nameNorm
+                     || s.Website.ToLower().TrimEnd('/') == websiteNorm)
+            .ToListAsync();
+
+        var newStatus = isActive ? SubmissionStatus.Approved : SubmissionStatus.Rejected;
+        foreach (var sub in submissions)
+        {
+            sub.Status = newStatus;
+        }
     }
 
     private async Task<string> UniqueSlugAsync(string baseSlug, int excludeId)

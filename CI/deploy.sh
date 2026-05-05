@@ -319,8 +319,22 @@ enable_maintenance_page() {
     ssh_run "docker exec nginx mkdir -p /var/www"
     ssh_run "docker cp /tmp/maintenance.html nginx:/var/www/maintenance.html"
 
+    # If certs exist on the host but not yet in the container, copy them in now.
+    # Without this, switching to the SSL maintenance config will fail because
+    # nginx (in the container) can't find the cert files.
+    local host_cert
+    host_cert="$(ssh_ignore "test -f /etc/letsencrypt/live/$DOMAIN/fullchain.pem && echo yes || echo no" | tr -d '[:space:]')"
+    if [[ "$host_cert" == "yes" ]]; then
+        ssh_ignore "cp -L /etc/letsencrypt/live/$DOMAIN/fullchain.pem /tmp/fullchain.pem && cp -L /etc/letsencrypt/live/$DOMAIN/privkey.pem /tmp/privkey.pem"
+        ssh_ignore "docker exec nginx mkdir -p /etc/letsencrypt/live/$DOMAIN"
+        ssh_ignore "docker cp /tmp/fullchain.pem nginx:/etc/letsencrypt/live/$DOMAIN/fullchain.pem"
+        ssh_ignore "docker cp /tmp/privkey.pem nginx:/etc/letsencrypt/live/$DOMAIN/privkey.pem"
+    fi
+
+    # Decide SSL vs plain based on what's actually inside the container,
+    # not what's on the host.
     local cert_now
-    cert_now="$(ssh_run "test -f /etc/letsencrypt/live/$DOMAIN/fullchain.pem && echo yes || echo no" | tr -d '[:space:]')"
+    cert_now="$(ssh_ignore "docker exec nginx test -f /etc/letsencrypt/live/$DOMAIN/fullchain.pem && echo yes || echo no" | tr -d '[:space:]')"
     local mconf="$TMPDIR_LOCAL/$APP_NAME.maint.conf"
     if [[ "$cert_now" == "yes" ]]; then
         build_maintenance_conf ssl   "$mconf"
