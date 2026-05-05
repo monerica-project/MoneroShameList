@@ -27,17 +27,17 @@ public class IndexModel(AppDbContext db) : PageModel
 
         var shameQuery = db.ShameEntries.Where(e => e.IsActive && shameCategories.Contains(e.Category));
         Entries = Sort == "name"
-            ? await shameQuery.OrderBy(e => e.Name).ToListAsync()
+            ? await shameQuery.OrderBy(e => e.Name.ToLower()).ToListAsync()
             : await shameQuery.OrderByDescending(e => e.DateAdded).ToListAsync();
 
         var mixedQuery = db.ShameEntries.Where(e => e.IsActive && e.Category == ShameCategory.MixedSupport);
         MixedSupport = Sort == "name"
-            ? await mixedQuery.OrderBy(e => e.Name).ToListAsync()
+            ? await mixedQuery.OrderBy(e => e.Name.ToLower()).ToListAsync()
             : await mixedQuery.OrderByDescending(e => e.DateAdded).ToListAsync();
 
         Converted = await db.ShameEntries
             .Where(e => e.IsActive && e.Category == ShameCategory.Converted)
-            .OrderBy(e => e.Name)
+            .OrderBy(e => e.Name.ToLower())
             .ToListAsync();
     }
 }
