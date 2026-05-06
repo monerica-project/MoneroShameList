@@ -1,0 +1,116 @@
+@page
+@model AdoptModel
+@{
+    ViewData["Title"] = "How to Accept Monero";
+}
+
+<div class="about-content">
+    <h1>How to Accept <span>Monero</span></h1>
+
+    <p>
+        If your company is on the Shame List — or you just want to start accepting XMR — there are
+        several ways to do it, ranging from "takes five minutes and costs nothing" to "full custom
+        integration." Pick whatever fits your size and technical comfort. None of these require KYC,
+        monthly subscriptions, or handing your customers' financial data to a third party.
+    </p>
+
+    <h2>1. Static donation or wallet address on your site</h2>
+    <p>
+        The simplest option, and completely free. Generate a Monero wallet using the
+        <a href="https://www.getmonero.org/downloads/" target="_blank" rel="noopener">official wallet</a>,
+        Feather, Cake Wallet, or any other Monero wallet. Copy your primary address and put it on your
+        site somewhere a customer or supporter can find it.
+    </p>
+    <p>
+        Customers send XMR directly to your wallet. There's no middleman, no fees beyond the standard
+        network fee, and nothing to integrate. The trade-off is that you'll need to manually reconcile
+        payments to invoices or orders. This works great for donations, tip jars, or low-volume sales
+        where you can communicate with each customer individually.
+    </p>
+
+    <h2>2. Email-based payment</h2>
+    <p>
+        A small step up from the static address. When a customer wants to pay, you correspond with them
+        over email and provide a Monero address — typically a per-customer subaddress generated from
+        your wallet — along with the exact amount to send. They pay, you confirm receipt, and you
+        fulfill the order.
+    </p>
+    <p>
+        This works well for B2B services, custom orders, consulting, or anything where you're already
+        communicating with the customer one-on-one. It costs nothing, requires no integration, and
+        gives you a paper trail in your inbox. Subaddresses (which any Monero wallet can generate) let
+        you tie incoming payments to specific customers without exposing your main address.
+    </p>
+
+    <h2>3. Third-party payment processor (NOWPayments)</h2>
+    <p>
+        For higher volume or e-commerce, a non-custodial processor like
+        <a href="https://nowpayments.io" target="_blank" rel="noopener">NOWPayments</a> handles the
+        checkout flow, generates per-order addresses, and forwards payments straight to your wallet.
+        There's no monthly subscription — just a small per-transaction fee (typically around 0.5%).
+    </p>
+    <p>
+        Plugins exist for most major e-commerce platforms (WooCommerce, Magento, Shopify via API, etc.),
+        and there's a hosted checkout option if you don't want to integrate directly. Other options in
+        this category include CoinGate and CoinPayments, but NOWPayments is the most common no-KYC
+        choice for merchants who just want it to work.
+    </p>
+    <p>Want a step-by-step guide? Check out our video: 
+        <a href="https://www.youtube.com/watch?v=O1vhPJjE_zg" target="_blank">
+    How to setup NOWPayments with Monero.</a></p>
+
+
+    <h2>4. Self-hosted BTCPay Server with your own node</h2>
+    <p>
+        If you want full control, no per-transaction processor fees, and direct settlement to your
+        own wallet with no third party in the middle, run
+        <a href="https://btcpayserver.org" target="_blank" rel="noopener">BTCPay Server</a> on your
+        own VPS. BTCPay supports Monero natively and connects to your own monerod node, so every
+        payment goes from the customer straight to your wallet with no intermediary taking a cut.
+    </p>
+    <p>
+        This takes more effort to set up — you'll need a VPS, a Monero node (a pruned node is fine
+        and keeps disk usage manageable), and a domain — but once it's running, it's effectively
+        free to operate forever. BTCPay provides hosted checkouts, invoicing, recurring billing,
+        point-of-sale apps, and APIs you can integrate into a custom flow. Monerica.com runs its
+        own BTCPay instance for exactly this reason.
+    </p>
+    <p>Want a step-by-step guide? Check out our video: <a href="https://www.youtube.com/watch?v=5rRqXj6sFb0" target="_blank">
+    How to Self-Host BTCPay Server & Accept Monero Payments (Full Setup Guide)</a></p>
+
+    <h2>5. Custom integration with the Monero RPC</h2>
+    <p>
+        For the most control, integrate Monero directly into your application using
+        <a href="https://docs.getmonero.org/interacting/monero-wallet-rpc-reference/" target="_blank" rel="noopener">monero-wallet-rpc</a>
+        or <a href="https://docs.getmonero.org/rpc-library/monerod-rpc/" target="_blank" rel="noopener">monerod's RPC interface</a>.
+        This lets you generate subaddresses programmatically, monitor incoming payments, automate
+        order fulfillment, and build whatever flow makes sense for your business.
+    </p>
+    <p>
+        Wrappers exist in most major languages (Python, Go, Node.js, C#, Rust, PHP) that talk to the
+        RPC interface. This is the highest-effort option and requires you to handle key management,
+        node operation, and reconciliation yourself — but it gives you total flexibility and zero
+        ongoing fees beyond your own infrastructure costs.
+    </p>
+
+    <h2>Which should you pick?</h2>
+    <p>
+        Most companies should start with option 1 or 2 — a static address or email-based payment is
+        enough to prove demand and get your first XMR transactions in. Once that's working, option 3
+        (NOWPayments) gives you a real checkout flow without much engineering effort. Options 4 and 5
+        are worth the work once Monero is a meaningful share of your revenue or you have specific
+        requirements that off-the-shelf processors can't meet.
+    </p>
+    <p>
+        The point is: there's no real excuse not to accept XMR. The simplest option costs nothing and
+        takes minutes. <a href="/">Get off the list</a>.
+    </p>
+
+    <h3>More Details On How To Accept Monero</h3>    
+    <p>
+        If you want more details on how to accept Monero, check out 
+        <a href="https://www.youtube.com/watch?v=_HFwVH7XmwI" target="_blank">this video</a> which 
+        goes into more detail. You'll learn how accepting Monero works at a high level 
+        and will better understand which path is best for you.
+    </p>
+</div>
