@@ -85,6 +85,20 @@ if (!string.IsNullOrEmpty(onionHost))
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+// Canonical lowercase URLs: 301 any GET whose path has uppercase to its lowercase form.
+// Runs after static files so real asset filenames are served untouched.
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value;
+    if (HttpMethods.IsGet(context.Request.Method) && !string.IsNullOrEmpty(path) && path.Any(char.IsUpper))
+    {
+        context.Response.Redirect(path.ToLowerInvariant() + context.Request.QueryString, permanent: true);
+        return;
+    }
+    await next();
+});
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

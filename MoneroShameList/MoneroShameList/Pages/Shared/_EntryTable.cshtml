@@ -1,0 +1,54 @@
+@using MoneroShameList.Models
+@model List<ShameEntry>
+
+@if (Model.Count == 0)
+{
+    <div class="empty-state">
+        <div class="big-icon">🏆</div>
+        <p>No entries match. <a href="/submit">Submit a company.</a></p>
+    </div>
+}
+else
+{
+    <div class="shame-table-wrap">
+        <table class="shame-table">
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Website</th>
+                    <th>Reason</th>
+                    <th>Added</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var e in Model)
+                {
+                    var badgeClass = e.Category switch
+                    {
+                        ShameCategory.DelistedXmr => "shame-badge shame-badge-delisted",
+                        ShameCategory.AllowsOtherCrypto => "shame-badge shame-badge-other",
+                        ShameCategory.Scammer => "shame-badge shame-badge-scammer",
+                        ShameCategory.MixedSupport => "shame-badge shame-badge-mixed",
+                        ShameCategory.Converted => "shame-badge shame-badge-converted",
+                        _ => "shame-badge"
+                    };
+                    var badgeText = e.Category switch
+                    {
+                        ShameCategory.DelistedXmr => "Delisted XMR",
+                        ShameCategory.AllowsOtherCrypto => "Other Crypto Only",
+                        ShameCategory.Scammer => "Scammer",
+                        ShameCategory.MixedSupport => "Mixed Support",
+                        ShameCategory.Converted => "Now Accepts XMR",
+                        _ => "Never Added XMR"
+                    };
+                    <tr>
+                        <td class="st-name"><a href="/company/@e.Slug">@e.Name</a></td>
+                        <td class="st-web"><a href="@e.Website" target="_blank" rel="noopener nofollow">@e.Website</a></td>
+                        <td><span class="@badgeClass">@badgeText</span></td>
+                        <td class="st-date">@e.DateAdded.ToString("MMM d, yyyy")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

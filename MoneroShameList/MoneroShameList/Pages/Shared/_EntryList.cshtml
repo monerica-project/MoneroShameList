@@ -6,7 +6,7 @@
 {
     <div class="empty-state">
         <div class="big-icon">🏆</div>
-        <p>No entries yet. Know a privacy hypocrite? <a href="/Submit">Submit them.</a></p>
+        <p>No entries yet. Know a privacy hypocrite? <a href="/submit">Submit them.</a></p>
     </div>
 }
 else
@@ -20,6 +20,7 @@ else
                 ShameCategory.AllowsOtherCrypto => "shame-badge shame-badge-other",
                 ShameCategory.Scammer => "shame-badge shame-badge-scammer",
                 ShameCategory.MixedSupport => "shame-badge shame-badge-mixed",
+                ShameCategory.Converted => "shame-badge shame-badge-converted",
                 _ => "shame-badge"
             };
             var badgeText = e.Category switch
@@ -28,10 +29,11 @@ else
                 ShameCategory.AllowsOtherCrypto => "Other Crypto Only",
                 ShameCategory.Scammer => "Scammer",
                 ShameCategory.MixedSupport => "Mixed Support",
+                ShameCategory.Converted => "Now Accepts XMR",
                 _ => "Never Added XMR"
             };
 
-            <div class="shame-card">
+            <div class="shame-card @(e.Category == ShameCategory.Converted ? "shame-card-converted" : "")">
                 <div class="shame-card-header">
                     <div>
                         <div class="company-name">
@@ -42,7 +44,10 @@ else
                     <span class="@badgeClass">@badgeText</span>
                 </div>
                 <div class="shame-description">@TextHelpers.Linkify(e.Description)</div>
-                <div class="shame-why"><strong>Why shamed:</strong> @TextHelpers.Linkify(e.WhyShamed)</div>
+                @if (e.Category != ShameCategory.Converted)
+                {
+                    <div class="shame-why"><strong>Why shamed:</strong> @TextHelpers.Linkify(e.WhyShamed)</div>
+                }
 
                 @if (!string.IsNullOrWhiteSpace(e.AdminComment))
                 {
