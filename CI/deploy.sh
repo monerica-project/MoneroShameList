@@ -226,12 +226,15 @@ build_nginx_conf() {
 server {
     listen 80;
     server_name $DOMAIN www.$DOMAIN;
-    return 301 https://\$host\$request_uri;
+    # www and apex both go to the apex over https (never serve/keep www).
+    return 301 https://$DOMAIN\$request_uri;
 }
 
 server {
     listen 443 ssl;
     server_name $DOMAIN www.$DOMAIN;
+    # www -> apex (301); apex falls through to the app below.
+    if (\$host = www.$DOMAIN) { return 301 https://$DOMAIN\$request_uri; }
     ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
@@ -255,6 +258,8 @@ EOF
 server {
     listen 80;
     server_name $DOMAIN www.$DOMAIN;
+    # No cert yet (pre-TLS): still send www to the apex host.
+    if (\$host = www.$DOMAIN) { return 301 http://$DOMAIN\$request_uri; }
 
     location / {
         proxy_pass         http://172.17.0.1:$APP_PORT;
@@ -279,12 +284,13 @@ build_maintenance_conf() {
 server {
     listen 80;
     server_name $DOMAIN www.$DOMAIN;
-    return 301 https://\$host\$request_uri;
+    return 301 https://$DOMAIN\$request_uri;
 }
 
 server {
     listen 443 ssl;
     server_name $DOMAIN www.$DOMAIN;
+    if (\$host = www.$DOMAIN) { return 301 https://$DOMAIN\$request_uri; }
     ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
@@ -301,6 +307,7 @@ EOF
 server {
     listen 80;
     server_name $DOMAIN www.$DOMAIN;
+    if (\$host = www.$DOMAIN) { return 301 http://$DOMAIN\$request_uri; }
     location / {
         root /var/www;
         try_files /maintenance.html =503;
