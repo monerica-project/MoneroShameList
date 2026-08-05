@@ -1,26 +1,26 @@
-﻿@page
+@page
 @model ErrorModel
 @{
-    ViewData["Title"] = "Error";
+    ViewData["Title"] = Model.IsNotFound ? "404 — Page not found" : "Something went wrong";
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
-
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
-
-<h3>Development Mode</h3>
-<p>
-    Swapping to the <strong>Development</strong> environment displays detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+<div style="text-align:center;padding:3.5rem 1rem;min-height:52vh;">
+    <div style="font-size:5.5rem;font-weight:800;color:#f26822;line-height:1;">@Model.Code</div>
+    @if (Model.IsNotFound)
+    {
+        <h2 style="margin:.5rem 0 .75rem;">Page not found</h2>
+        <p style="opacity:.75;max-width:460px;margin:0 auto 1.75rem;line-height:1.5;">
+            This page doesn&#39;t exist, was moved, or never did.
+        </p>
+    }
+    else
+    {
+        <h2 style="margin:.5rem 0 .75rem;">Something went wrong</h2>
+        <p style="opacity:.75;max-width:460px;margin:0 auto 1.75rem;line-height:1.5;">
+            An error occurred while processing your request. Please try again.
+        </p>
+    }
+    <a href="/" style="display:inline-block;padding:.7rem 1.2rem;border-radius:8px;background:#f26822;color:#111;font-weight:700;text-decoration:none;">
+        ← Back to home
+    </a>
+</div>

@@ -52,9 +52,10 @@ using (var scope = app.Services.CreateScope())
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");
+    app.UseExceptionHandler("/error");
     app.UseHsts();
 }
+
 
 // Onion-Location header — advertises .onion equivalent to Tor Browser.
 // Tor Browser auto-detects this and offers to switch to the onion version,
@@ -98,6 +99,10 @@ app.Use(async (context, next) =>
     }
     await next();
 });
+
+// Branded 404 (and other status codes) via the /error page. Placed AFTER the lowercase-
+// redirect middleware so the re-executed request isn't 301'd by it.
+app.UseStatusCodePagesWithReExecute("/error", "?code={0}");
 
 app.UseRouting();
 app.UseAuthentication();
