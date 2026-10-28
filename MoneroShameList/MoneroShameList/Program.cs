@@ -94,7 +94,8 @@ app.Use(async (context, next) =>
     var path = context.Request.Path.Value;
     if (HttpMethods.IsGet(context.Request.Method) && !string.IsNullOrEmpty(path) && path.Any(char.IsUpper))
     {
-        context.Response.Redirect(path.ToLowerInvariant() + context.Request.QueryString, permanent: true);
+        // Exactly one leading slash: "//Evil.com" must not become a protocol-relative redirect off-site.
+        context.Response.Redirect("/" + path.ToLowerInvariant().TrimStart('/', '\\') + context.Request.QueryString, permanent: true);
         return;
     }
     await next();
